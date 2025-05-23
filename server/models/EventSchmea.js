@@ -10,9 +10,9 @@ const eventSchema = new mongoose.Schema({
   
   // Optional: Target specific team or role
   targetTeams: [{ type: String }], // e.g., ["developer", "marketing"]
-  targetRoles: [{ type: String, enum: ['admin', 'employee'] }], // optional
+//   targetRoles: [{ type: String, enum: ['admin', 'employee'] }], // optional
   
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
+//   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -3,6 +3,7 @@ import* as dotenv from "dotenv";
 import connectDB from './config/db.js';
 import { EmployeeRouter } from './routes/employeeRoute.js';
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 
 
 dotenv.config()
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT
 
-
+app.use(cookieParser())
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true, 
