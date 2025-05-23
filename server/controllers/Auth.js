@@ -1,5 +1,5 @@
-import EmployeeModel from "../models/UserModel";
-import { generateTokken,cookieToken } from "../uitlis/generatetoken";
+import EmployeeModel from "../models/UserModel.js";
+import { generateTokken,cookieToken } from "../uitlis/generatetoken.js";
 import bcrypt from 'bcrypt'
 
 
@@ -25,8 +25,8 @@ export const register = async (req, res) =>{
 			!confirmPassword ||
 			!dob ||
             !department ||
-            !role ||
-            !profilePictureUrl 
+            !role 
+            
 		) {
 			return res.status(403).json({
 				message: "All Fields are required",
@@ -64,12 +64,12 @@ export const register = async (req, res) =>{
 
     }
     catch(err){
-        console.error('error in register',err);
-        return res.status(500).json({message:'internal server error'})
+        console.error('error in register',err.message);
+        return res.status(500).json({message:err.message})
     }
 }
 
- export const authUser = (async(req,res)=>{
+ export const AuthUser = async(req,res)=>{
     try{
         const { email, password } = req.body;
 
@@ -99,7 +99,7 @@ export const register = async (req, res) =>{
       ,
   });
 } catch (err) {
-  console.error('Error during authentication', err);
-  return res.status(500).json({ message: 'Internal server error' });
+  console.error('Error during authentication', err.message);
+  return res.status(500).json({ message: err.message });
 }
-})
+}
