@@ -6,7 +6,7 @@ const eventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   date: { type: Date, required: true },
-  type: { type: String, enum: ['company_event', 'birthday', 'team_event'], required: true },
+  type: { type: String, enum: ['company_event', 'team_event'], required: true },
   
   // Optional: Target specific team or role
   targetTeams: [{ type: String }], // e.g., ["developer", "marketing"]

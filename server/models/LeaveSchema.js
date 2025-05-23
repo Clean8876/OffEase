@@ -7,7 +7,7 @@ const leaveRequestSchema = new mongoose.Schema({
   fromDate: { type: Date, required: true },
   toDate: { type: Date, required: true },
   reason: { type: String },
-  // approverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
+  approverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
   createdAt: { type: Date, default: Date.now }
 });
 const LeaveRequest = mongoose.model('LeaveRequest', leaveRequestSchema);

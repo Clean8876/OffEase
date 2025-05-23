@@ -26,11 +26,7 @@ const employeeSchema = new mongoose.Schema({
 
     profilePictureUrl: { type: String }, // NEW: URL to cloud storage or local path
 
-    leaveBalance: {
-        sick: { type: Number, default: 4},
-        casual: { type: Number, default: 6},
-       
-    },
+ 
     token: {
         type: String,
     },
