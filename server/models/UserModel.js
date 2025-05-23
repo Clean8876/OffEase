@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt'
 
+import { v4 as uuidv4 } from "uuid";
+
 
 const employeeSchema = new mongoose.Schema({
-    employmentId: { type: String, unique: true, required: true },
+    employmentId: { type: String, unique: true, required: true ,default: uuidv4},
     Firstname: { type: String, required: true },
     Lastname: { type: String, required: true },
     email: { type: String, unique: true, required: true },
@@ -40,6 +42,7 @@ const employeeSchema = new mongoose.Schema({
 })
 
 employeeSchema.pre ('save',async function (next){
+
     if(!this.isModified('password')){
        return next()
     }
