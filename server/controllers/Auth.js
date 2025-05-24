@@ -86,7 +86,7 @@ export const register = async (req, res) =>{
             return res.status(401).json({ message: 'Invalid credentials' });
         }
   // Generate token
-    const token = generateTokken(user.email, user._id,user.role);
+    const token = generateTokken(user.email, user._id,user.role,user.department);
 
   // Set token in cookie
   cookieToken(res, token);

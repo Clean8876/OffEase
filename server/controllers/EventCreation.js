@@ -109,3 +109,50 @@ export const createEvent = async (req, res) =>{
     });
     }
 }
+
+
+export const getEvent = async (req, res) =>{
+    try{
+         const { department, role, id } = req.user;
+            // Validate user department
+        if (!department) {
+        return res.status(400).json({
+            error: 'User department not found',
+            message: 'User must have a department assigned to view events'
+        });
+        }
+         
+        const query = {
+        $or: [
+            
+            { type: 'company_event' },
+            // Include team events where user's department is in targetTeams
+            { 
+            type: 'team_event',
+            targetTeams: { $in: [department] }
+            }
+        ]
+        };
+         const events = await EventData.find(query)
+        .select('title description date type targetTeams createdAt') // Only select needed fields
+        .sort({ date: 1 }) // Sort by date ascending (earliest first)
+        .lean();
+         res.status(200).json({
+            success: true,
+            count: events.length,
+            data: events,
+            user: {
+                department: department,
+                role: role
+            }
+            });
+    }
+    catch(err){
+        console.error('Error fetching events:', err.message);
+        res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch events. Please try again later.'
+        });
+
+    }
+}
