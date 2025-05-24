@@ -6,10 +6,15 @@ import { eventRouter } from './routes/eventCreationRoute.js';
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
 
+import leaveRoutes from './routes/leaveRoutes.js';
+
+
+
 
 dotenv.config()
 const app = express()
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT
 
@@ -34,7 +39,9 @@ async function startServer() {
         console.log(`Server is running on port http://localhost:${port}`);
     })
 }
+//app.use('/api/leave', leaveRoutes);
 
+app.use("/api/leave", leaveRoutes);
 
 startServer()
 
