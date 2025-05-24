@@ -2,6 +2,9 @@ import EmployeeModel from "../models/UserModel.js";
 import { generateTokken,cookieToken } from "../uitlis/generatetoken.js";
 import bcrypt from 'bcrypt'
 
+import LeaveBalance from '../models/leaveBalance.js';
+import LeaveType from '../models/leaveType.js';
+
 
 
 
@@ -54,6 +57,35 @@ export const register = async (req, res) =>{
         
         })
         await newUser.save()
+
+        //my code
+        await newUser.save();
+
+// Assign default leave balances if the role is 'employee'
+if (newUser.role === 'employee') {
+    const casualType = await LeaveType.findOne({ name: 'casual' });
+    const sickType = await LeaveType.findOne({ name: 'sick' });
+
+    if (!casualType || !sickType) {
+        return res.status(500).json({ message: 'Leave types not properly set up in the system.' });
+    }
+
+    await LeaveBalance.insertMany([
+        {
+            employee: newUser._id,
+            leaveType: casualType._id,
+            totalDays: 4,
+            remainingDays: 4,
+        },
+        {
+            employee: newUser._id,
+            leaveType: sickType._id,
+            totalDays: 2,
+            remainingDays: 2,
+        }
+    ]);
+}
+//ended
         return res.status(201).json({message:'succesfully Regesterd',newUser
 
         });
