@@ -2,6 +2,7 @@ import express from 'express';
 import* as dotenv from "dotenv";
 import connectDB from './config/db.js';
 import { EmployeeRouter } from './routes/employeeRoute.js';
+import { eventRouter } from './routes/eventCreationRoute.js';
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
 
@@ -24,6 +25,7 @@ app.use(cors({
   
 });
 app.use('/api/user',EmployeeRouter)
+app.use('/api/event',eventRouter)
 async function startServer() {
 
     connectDB()
