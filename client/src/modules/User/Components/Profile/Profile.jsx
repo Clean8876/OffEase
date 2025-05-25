@@ -55,6 +55,8 @@ const Profile = () => {
     }
   };
 
+  
+
   return (
     <Container>
       <AvatarSection>

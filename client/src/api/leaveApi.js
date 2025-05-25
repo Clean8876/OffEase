@@ -1,35 +1,36 @@
-import axios from "axios";
+import axiosConfig from "../Config/AxiosConfig";
 
-const API_BASE = "http://localhost:5000/api/leave"; // Change as needed
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IkFkbWluQG1haWwuY29tIiwiaWQiOiI2ODMwMzc3MzRjYzZiNTU1NDI2NjkxMmQiLCJyb2xlIjoiYWRtaW4iLCJkZXBhcnRtZW50IjoiaHIiLCJpYXQiOjE3NDgxNTU3MzEsImV4cCI6MTc1MDc0NzczMX0.cd2nbps_e_6--urA568Wpbt5lGac-ouVWFseX6htowE"; // ← Your token here
 
-// Auth token helper
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token"); // Assumes token is stored in localStorage
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+
+//  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6I…wNTh9.eJQjhcEHLzPSl0dHfuZ3sLWa99dNfrT-tl-qJdl4ZUA',
+
+
+
+export const getAllLeaves = async () => {
+    try {
+      const res = await axiosConfig.get("/api/leave?status=all", {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   };
-};
-
-export const fetchLeaveTypes = async () => {
-  try {
-    const res = await axios.get(`${API_BASE}/types`, getAuthHeaders());
-    return res.data;
-  } catch (err) {
-    console.error("Failed to fetch leave types", err);
-    return [];
-  }
-};
-export const submitLeaveRequest = async (payload) => {
-  try {
-    const res = await axios.post(`${API_BASE}/request`, payload, getAuthHeaders());
-    return { success: true, data: res.data };
-  } catch (err) {
-    return {
-      success: false,
-      message: err.response?.data?.message || "Error submitting request",
-    };
-  }
-};
-
+  
+  export const updateStatus = async (statusPayload) => {
+    try {
+      const res = await axiosConfig.patch("/api/leave/requests/status", statusPayload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
