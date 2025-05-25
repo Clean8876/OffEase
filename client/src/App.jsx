@@ -10,6 +10,7 @@ import UserSidebar from './modules/User/Components/UserSidebar/UserSidebar'
 import UserBaseLayout from './modules/User/Components/UserBaselayout/UserBaselayout'
 import ApplyLeave from './modules/User/Components/ApplyLeave/ApplyLeave'
 import Profile from './modules/User/Components/Profile/Profile'
+import AdminDashboard from './modules/Admin/Pages/AdminDashboard/AdminDashboard';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/admin" element={<BaseLayout />}>
+        <Route index element={<AdminDashboard />} />
           <Route path="leave-management" element={<LeaveManagement />} />
           {/* relative path! */}
         </Route>

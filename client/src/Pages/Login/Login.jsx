@@ -25,15 +25,27 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // First prevent default
-
+    e.preventDefault();
     console.log('Form submitted:', { email, password });
 
     try {
-      const response = await login({ email, password }); // ✅ wrap in object
+      const response = await login({ email, password });
+
       console.log('Login Success:', response);
+
+      // Optional: Save role if needed elsewhere
+      localStorage.setItem('role', response.role);
+
       alert('Login Success');
-      navigate('/admin');
+
+      // ✅ Redirect based on role
+      if (response.user?.role === 'admin') {
+        navigate('/admin');
+      } else if (response.user?.role === 'employee') {
+        navigate('/user');
+      } else {
+        alert('Unknown role. Cannot redirect.');
+      }
     } catch (error) {
       console.error('Login error:', error);
       alert('Login Failed: ' + (error.message || 'Unknown error'));
