@@ -39,8 +39,7 @@ async function startServer() {
         console.log(`Server is running on port http://localhost:${port}`);
     })
 }
-//app.use('/api/leave', leaveRoutes);
-
+//leave routes
 app.use("/api/leave", leaveRoutes);
 
 startServer()

@@ -1,11 +1,9 @@
 import EmployeeModel from "../models/UserModel.js";
-import { generateTokken,cookieToken } from "../uitlis/generatetoken.js";
+import { generateToken,cookieToken } from "../uitlis/generateToken.js";
 import bcrypt from 'bcrypt'
 
 import LeaveBalance from '../models/leaveBalance.js';
 import LeaveType from '../models/leaveType.js';
-
-
 
 
 export const register = async (req, res) =>{
@@ -37,14 +35,14 @@ export const register = async (req, res) =>{
 		}
         if(password !== confirmPassword){
             return res.status(400).json({
-                message:"password are not matched please try  again"
+                message:"Passwords do not match. Please try again"
             })
 
         }
 
         const userExist = await EmployeeModel.findOne({email});
         if(userExist){
-            return  res.status(400).json({message:'user exsist'})
+            return  res.status(400).json({message:'User already exists'})
         }
         const newUser =  new EmployeeModel({Firstname,
         Lastname,
@@ -56,7 +54,6 @@ export const register = async (req, res) =>{
         profilePictureUrl,
         
         })
-        await newUser.save()
 
         //my code
         await newUser.save();
@@ -86,14 +83,9 @@ if (newUser.role === 'employee') {
     ]);
 }
 //ended
-        return res.status(201).json({message:'succesfully Regesterd',newUser
+        return res.status(201).json({message:'Successfully registered',newUser
 
         });
-   
-	
-
-
-
     }
     catch(err){
         console.error('error in register',err.message);
@@ -117,8 +109,9 @@ if (newUser.role === 'employee') {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-  // Generate token
-    const token = generateTokken(user.email, user._id,user.role,user.department);
+
+    const token = generateToken(user.email, user._id,user.role,user.department);
+
 
   // Set token in cookie
   cookieToken(res, token);

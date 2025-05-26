@@ -3,7 +3,9 @@ import JWT from  'jsonwebtoken'
 
 //genrate Jwt tokeen for id email and accType
 
-export const generateTokken = ( email, id, role,department )=>{
+
+export const generateToken = ( email, id, role,department )=>{
+
    
    return JWT.sign({ email, id, role,department },process.env.JWT_SECRET,{expiresIn:'30d'},
       console.log(id)
