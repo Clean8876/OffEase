@@ -122,6 +122,15 @@ export default function LeaveManagement() {
 
   // ... formatToIST and handleUpdateStatus remain unchanged
 
+  const handleUpdateStatus = (leaveId, newStatus) => {
+  const updatedData = data.map((item) =>
+    item._id === leaveId ? { ...item, status: newStatus } : item
+  );
+  setData(updatedData);
+  setIsModalOpen(false);
+};
+
+
   return (
     <>
       <Container>
