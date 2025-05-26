@@ -25,7 +25,7 @@ import { CiSearch } from "react-icons/ci";
 import { IoEyeOutline } from "react-icons/io5";
 import { Select } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getAllLeaves } from "../../../../api/LeaveApi";
+import { getAllLeaves } from "../../../../api/LeaveRequestApi";
 import LeaveApprovalModal from "../../Components/LeaveApprovalModal/LeaveApprovalModal";
 
 const ITEMS_PER_PAGE = 10;

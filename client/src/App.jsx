@@ -19,6 +19,8 @@ function App() {
         <Route index element={<AdminDashboard />} />
           <Route path="leave-management" element={<LeaveManagement />} />
           <Route path="event-mamgement" element={<EventManagement />} />
+
+          
           {/* relative path! */}
         </Route>
 
