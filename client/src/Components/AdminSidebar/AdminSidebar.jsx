@@ -20,6 +20,7 @@ const AdminSidebar = () => {
   const menuItems = [
     { path: "/admin", label: "Dashboard" },
     { path: "/admin/leave-management", label: "Leave Management" },
+    { path: "/admin/event-mamgement", label: "Event Management" },
   ];
 
   return (

@@ -1,8 +1,17 @@
+// axiosConfig.js or App.js
 import axios from 'axios';
 
 const axiosConfig = axios.create({
-  baseURL: 'http://localhost:5002', // ✅ use 5000 because your backend is working here
-  withCredentials: true,           // ✅ allows cookies (if JWT is sent via cookie)
+  baseURL: 'http://localhost:5000', // adjust if needed
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// ⏬ Add this at the end to apply stored token globally
+const token = localStorage.getItem('token');
+if (token) {
+  axiosConfig.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 export default axiosConfig;
