@@ -52,39 +52,65 @@ export const getMyLeaveBalances = async (req, res) => {
 export const submitLeaveRequest = async (req, res) => {
   try {
     const { leaveTypeId, startDate, endDate, reason } = req.body;
-    const lt = await LeaveType.findById(leaveTypeId);
-    if (!lt) return res.status(400).json({ message: "Invalid leaveTypeId" });
 
-    // advance notice check
-    const now = new Date(), start = new Date(startDate);
-    const diffDays = Math.ceil((start - now) / (1000*60*60*24));
-    if (diffDays < lt.advanceNoticeDays) {
+    const leaveType = await LeaveType.findById(leaveTypeId);
+    if (!leaveType) return res.status(400).json({ message: "Invalid leaveTypeId" });
+
+    const now = new Date();
+    const start = new Date(startDate);
+    const daysNotice = Math.ceil((start - now) / (1000 * 60 * 60 * 24));
+
+    if (daysNotice < leaveType.advanceNoticeDays) {
       return res.status(400).json({
-        message: `Must apply ${lt.advanceNoticeDays} days in advance for ${lt.name}`
+        message: `Must apply ${leaveType.advanceNoticeDays} days in advance for ${leaveType.name}`,
       });
     }
 
-    const status = lt.autoApproval ? "approved" : "pending";
+    // Calculate number of leave days
+    const requestedDays = Math.ceil(
+      (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
+    ) + 1;
+
+    // Check leave balance
+    const balance = await LeaveBalance.findOne({
+      employee: req.user.id,
+      leaveType: leaveTypeId,
+    });
+
+    if (!balance || balance.remainingDays < requestedDays) {
+      return res.status(400).json({
+        message: `Insufficient ${leaveType.name} leave balance. Available: ${balance ? balance.remainingDays : 0}, Requested: ${requestedDays}`,
+      });
+    }
+
+    // Determine status
+    const status = leaveType.autoApproval ? "approved" : "pending";
+
+    // Create the request
     const reqDoc = await LeaveRequest.create({
       employee: req.user.id,
       leaveType: leaveTypeId,
-      startDate, endDate, reason, status
+      startDate,
+      endDate,
+      reason,
+      status,
     });
 
-    // if auto-approved, deduct immediately
+    // If auto-approved, deduct immediately
     if (status === "approved") {
-      const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000*60*60*24)) + 1;
       await LeaveBalance.findOneAndUpdate(
         { employee: req.user.id, leaveType: leaveTypeId },
-        { $inc: { remainingDays: -days } }
+        { $inc: { remainingDays: -requestedDays } }
       );
     }
 
     res.status(201).json(reqDoc);
   } catch (err) {
+    console.error("Leave request error:", err.message);
     res.status(500).json({ message: "Error submitting leave request", error: err.message });
   }
 };
+
 
 // EMPLOYEE: view own requests
 export const getMyLeaveRequests = async (req, res) => {
@@ -179,4 +205,34 @@ export const updateLeaveRequestStatus = async (req, res) => {
   }
 
   res.json({ message: `Leave request ${status} successfully`, request });
+};
+
+// DELETE /api/leaves/:id
+export const deleteLeaveRequest = async (req, res) => {
+  try {
+    const leaveRequestId = req.params.id;
+
+    const request = await LeaveRequest.findById(leaveRequestId);
+
+    if (!request) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Ensure the requester owns the leave or is an admin
+    if (request.employee.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ message: "You are not authorized to delete this request" });
+    }
+
+    // Only pending requests can be deleted
+    if (request.status !== "pending") {
+      return res.status(400).json({ message: "Only pending requests can be deleted" });
+    }
+
+    await LeaveRequest.findByIdAndDelete(leaveRequestId);
+
+    res.status(200).json({ message: "Leave request deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting leave request:", err.message);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
 };
