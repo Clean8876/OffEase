@@ -79,7 +79,7 @@ export const StyledTable = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background-color: #f0f0f0;
+  background-color:rgb(238, 218, 237);
 `;
 
 export const TableHeader = styled.th`
@@ -106,7 +106,7 @@ export const TableBody = styled.tbody``;
 
 export const TableRow = styled.tr`
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #eccfea;
   }
 `;
 
@@ -218,7 +218,6 @@ export const CreateButton = styled.button`
 
 export const SearchWrapper = styled.div`
   position: relative;
-  width: 100%;
   margin-bottom: 16px;
 
   @media (max-width: 768px) {
@@ -238,7 +237,7 @@ export const SearchIcon = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 20%;
+  width: 100%;
   padding: 10px 5px 10px 40px;
   border: none;
   border-radius: 8px;
@@ -249,4 +248,19 @@ export const SearchInput = styled.input`
   @media (max-width: 768px) {
     font-size: 14px;
   }
+`;
+
+export const SecondHero = styled.div`
+display: flex;
+flex-direction: row;
+// padding: 20px;
+width: 100%;
+`;
+
+export const DepartmentFilter = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 20px;
+  
 `;

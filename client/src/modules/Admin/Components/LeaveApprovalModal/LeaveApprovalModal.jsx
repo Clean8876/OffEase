@@ -12,7 +12,7 @@ import {
   ActionButtons,
   ActionButton,
 } from "./LeaveApprovalModal.styles";
-import { updateStatus } from "../../../../api/LeaveApi";
+import { updateStatus } from "../../../../api/LeaveRequestApi";
 
 export default function LeaveApprovalModal({ leave, onClose, onUpdateStatus }) {
   if (!leave) return null; // Ensure we don't render the modal without data

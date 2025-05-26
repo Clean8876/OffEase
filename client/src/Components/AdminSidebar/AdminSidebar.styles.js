@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 export const SidebarContainer = styled.div`
   width: 250px;
   height: 95vh;
-  background-color: #f9fafc;
+  background-color:rgb(255, 255, 255);
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e0e0e0;
@@ -34,7 +34,7 @@ export const SidebarContainer = styled.div`
 
 export const SidebarTitle = styled.h2`
   font-family: "Segoe UI", sans-serif;
-  color: #007bff;
+  color: rgb(212, 31, 200);
   margin: 0;
   padding-bottom: 12px;
   border-bottom: 1px solid #ccc;
@@ -61,12 +61,12 @@ export const MenuItem = styled.li`
 
   &:hover {
     color: #fff;
-    background: linear-gradient(to right, #0dcaf0, #007bff);
+    background: linear-gradient(to right, rgb(192, 126, 188),rgb(192, 126, 188));
   }
 
   &.active {
     color: #fff;
-    background: linear-gradient(to right, #0dcaf0, #007bff);
+    background: linear-gradient(to right, rgb(192, 126, 188),rgb(192, 126, 188));
     border-radius: 6px;
   }
 `;
@@ -112,14 +112,14 @@ export const StyledNavLink = styled(NavLink).attrs(() => ({
       : css`
           &.active {
             color: #fff;
-            background: linear-gradient(to right, #0dcaf0, #007bff);
+            background: linear-gradient(to right,  rgb(192, 126, 188),rgb(192, 126, 188));
             border-radius: 6px;
           }
         `}
 
   &:hover {
     color: #fff;
-    background: #007bff;
+    background: rgba(192, 126, 188, 0.78);
   }
 `;
 

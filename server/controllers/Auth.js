@@ -128,3 +128,12 @@ if (newUser.role === 'employee') {
   return res.status(500).json({ message: err.message });
 }
 }
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await EmployeeModel.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
