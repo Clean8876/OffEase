@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosConfig = axios.create({
-  baseURL: 'http://localhost:5002', // adjust if needed
+  baseURL: 'http://localhost:5000', // adjust if needed
   headers: {
     'Content-Type': 'application/json',
   },

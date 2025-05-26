@@ -12,7 +12,7 @@ import {
 import Register from '../Register/Register';
 import { AiOutlineUser, AiOutlineCalendar } from 'react-icons/ai';
 import { getAllUsers } from '../../../../api/AuthApi';
-import { getAllLeaves } from '../../../../api/LeaveApi';
+import { getAllLeaves } from '../../../../api/LeaveRequestApi';
 
 const Stats = () => {
   const [modalOpen, setModalOpen] = useState(false);
