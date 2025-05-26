@@ -1,30 +1,77 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StatsContainer,
   StatBox,
   StatTitle,
   StatValue,
+  StatIconWrapper,
   AddButtonWrapper,
   AddButton,
+  StatsContent
 } from './Stats.styles';
+import Register from '../Register/Register';
+import { AiOutlineUser, AiOutlineCalendar } from 'react-icons/ai';
+import { getAllUsers } from '../../../../api/AuthApi';
+import { getAllLeaves } from '../../../../api/LeaveApi';
 
-const Stats = ({ usersCount, todaysLeaveCount, onAddEmployee }) => {
+const Stats = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [todaysLeaveCount, setTodaysLeaveCount] = useState(0);
+
+  useEffect(() => {
+    getAllUsers().then((res) => {
+      if (res && Array.isArray(res)) {
+        setUsers(res);
+      } else {
+        console.error("Unexpected response from getAllUsers:", res);
+      }
+    });
+
+    getAllLeaves().then((res) => {
+      if (res && Array.isArray(res)) {
+        const today = new Date().toISOString().split('T')[0];
+        const todaysLeaves = res.filter((leave) => {
+          const leaveDate = new Date(leave.createdAt).toISOString().split('T')[0];
+          return leaveDate === today;
+        });
+        setTodaysLeaveCount(todaysLeaves.length);
+      } else {
+        console.error("Unexpected response from getAllLeaves:", res);
+      }
+    });
+  }, []);
+
   return (
-    <StatsContainer>
-      <StatBox>
-        <StatTitle>No. of Users</StatTitle>
-        <StatValue>{usersCount}</StatValue>
-      </StatBox>
+    <>
+      <StatsContainer>
+        <StatBox>
+          <StatIconWrapper>
+            <AiOutlineUser size={32} />
+          </StatIconWrapper>
+          <StatsContent>
+            <StatTitle>No. of Users</StatTitle>
+            <StatValue>{users.length}</StatValue>
+          </StatsContent>
+        </StatBox>
 
-      <StatBox>
-        <StatTitle>Today's Leaves</StatTitle>
-        <StatValue>{todaysLeaveCount}</StatValue>
-      </StatBox>
+        <StatBox>
+          <StatIconWrapper>
+            <AiOutlineCalendar size={32} />
+          </StatIconWrapper>
+          <StatsContent>
+            <StatTitle>Today's Leaves</StatTitle>
+            <StatValue>{todaysLeaveCount}</StatValue>
+          </StatsContent>
+        </StatBox>
 
-      <AddButtonWrapper>
-        <AddButton onClick={onAddEmployee}>+ Add Employee</AddButton>
-      </AddButtonWrapper>
-    </StatsContainer>
+        <AddButtonWrapper>
+          <AddButton onClick={() => setModalOpen(true)}>+ Add Employee</AddButton>
+        </AddButtonWrapper>
+      </StatsContainer>
+
+      <Register open={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
   );
 };
 

@@ -15,6 +15,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "react": "^19.1.0",
+    "react-big-calendar": "^1.18.0",
     "react-calendar": "^5.1.0",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.1.0",

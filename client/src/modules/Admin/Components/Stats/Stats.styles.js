@@ -1,34 +1,56 @@
 import styled from 'styled-components';
 
 export const StatsContainer = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns:1fr 1fr 1fr;
   gap: 2rem;
   flex-wrap: wrap;
-  padding: 2rem;
-  background-color: #f9fafe;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin: 2rem 0;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
 `;
 
 export const StatBox = styled.div`
-  flex: 1;
-  min-width: 200px;
+  flex: 1 1 200px;
   padding: 1.5rem;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  background-color:rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;
+  // flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
 `;
 
-export const StatTitle = styled.div`
-  font-size: 1rem;
-  color: #6c757d;
+export const StatsContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 1rem;
+  gap: 1rem;
 `;
 
-export const StatValue = styled.div`
-  font-size: 2rem;
-  font-weight: bold;
+export const StatTitle = styled.h4`
+  margin: 0;
+  color: #666;
+`;
+
+export const StatValue = styled.h2`
+  margin: 0;
   color: #333;
+`;
+
+export const StatIconWrapper = styled.div`
+  margin-bottom: 0.5rem;
+  background-color:rgb(238, 211, 236);
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 10px;
 `;
 
 export const AddButtonWrapper = styled.div`
@@ -37,17 +59,26 @@ export const AddButtonWrapper = styled.div`
 `;
 
 export const AddButton = styled.button`
-  height: 60px;
-  padding: 0 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  font-size: 2rem;
+  // background-color: #3e64ff;
+  // color: white;
+  border: 4px dashed rgb(238, 211, 236);
+  border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s;
+    flex: 1 1 200px;
+  padding: 3rem;
+  background-color:rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: rgb(238, 211, 236);
   }
 `;

@@ -40,3 +40,18 @@ export const login = async (data) => {
     throw error.response?.data || error;
   }
 };
+
+export const getAllUsers = async () => {
+  try {
+    const res = await axiosConfig.get("/api/user/users", {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+  
+}
