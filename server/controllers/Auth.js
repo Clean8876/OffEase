@@ -144,3 +144,36 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getEmployeeById = async (req, res) => {
+    try {
+        const employeeId = req.user.id; // Get ID from decoded token payload
+
+        if (!employeeId) {
+            return res.status(400).json({
+                success: false,
+                message: "Employee ID not found in token",
+            });
+        }
+
+        const employee = await EmployeeModel.findById(employeeId);
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Employee data fetched successfully",
+            data: employee,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};

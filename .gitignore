@@ -1,0 +1,45 @@
+# Dependency directories
+node_modules/
+.pnpm-store/
+
+# Environment variables
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+out/
+.next/
+
+# Cache
+.cache/
+.npm
+.yarn-integrity
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+
+# Debugger
+.node_inspect*
+
+# Package manager specific
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
