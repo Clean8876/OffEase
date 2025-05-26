@@ -1,0 +1,42 @@
+import axiosConfig from "../Config/AxiosConfig";
+
+// REGISTER
+export const register = async (data) => {
+  try {
+    // Get the token from localStorage instead of hardcoding
+    const token = localStorage.getItem("token");
+
+    const res = await axiosConfig.post("/api/user/register", data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// LOGIN
+export const login = async (data) => {
+  try {
+    const res = await axiosConfig.post("/api/user/login", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Login Response:", res.data);
+
+    if (res.data?.token) {
+      localStorage.setItem("token", res.data.token);
+      console.log("Token stored in localStorage:", res.data.token);
+    }
+
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};

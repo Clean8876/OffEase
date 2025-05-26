@@ -1,5 +1,5 @@
 import EmployeeModel from "../models/UserModel.js";
-import { generateToken,cookieToken } from "../uitlis/generatetoken.js";
+import { generateToken,cookieToken } from "../uitlis/generateToken.js";
 import bcrypt from 'bcrypt'
 
 import LeaveBalance from '../models/leaveBalance.js';
@@ -109,8 +109,9 @@ if (newUser.role === 'employee') {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-  // Generate token
-    const token = generateToken(user.email, user._id,user.role);
+
+    const token = generateToken(user.email, user._id,user.role,user.department);
+
 
   // Set token in cookie
   cookieToken(res, token);
