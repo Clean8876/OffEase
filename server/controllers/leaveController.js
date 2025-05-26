@@ -51,7 +51,7 @@ export const getMyLeaveBalances = async (req, res) => {
 // EMPLOYEE: submit a leave request
 export const submitLeaveRequest = async (req, res) => {
   try {
-    const { leaveTypeId, startDate, endDate, reason } = req.body;
+    const { leaveTypeId, startDate, endDate, reason ,description} = req.body;
 
     const leaveType = await LeaveType.findById(leaveTypeId);
     if (!leaveType) return res.status(400).json({ message: "Invalid leaveTypeId" });
@@ -94,6 +94,7 @@ export const submitLeaveRequest = async (req, res) => {
       endDate,
       reason,
       status,
+      description
     });
 
     // If auto-approved, deduct immediately
