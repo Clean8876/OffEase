@@ -1,9 +1,27 @@
-import react from 'react'
+import React from "react";
+import {
+HeaderContainer,
+
+    Title,
+    UserInfoWrapper,
+    UserDetails,
+    UserName,
+    UserEmail
+} from "./AdminHeader.styles";
+
 
 const AdminHeader = () => {
-    return (
-        <div>AdminHeader</div>
-    )
-}   
+  return (
+    <HeaderContainer>
+      <Title>Dashboard</Title>
+      <UserInfoWrapper>
+        <UserDetails>
+          <UserName>Admin </UserName>
+          <UserEmail>Admin@mail.com</UserEmail>
+        </UserDetails>
+      </UserInfoWrapper>
+    </HeaderContainer>
+  );
+};
 
-export default AdminHeader
+export default AdminHeader;
