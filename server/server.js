@@ -7,6 +7,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 
 import leaveRoutes from './routes/leaveRoutes.js';
+import BalanceRouter from './routes/balanceRoute.js';
 
 
 
@@ -41,6 +42,8 @@ async function startServer() {
 }
 //leave routes
 app.use("/api/leave", leaveRoutes);
+//balance routes
+app.use("/api/balance", BalanceRouter);
 
 startServer()
 

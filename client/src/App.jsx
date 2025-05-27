@@ -12,6 +12,8 @@ import MyCalendar from './Components/calender/Calender';
 import Calendar from './Components/calender/Calender';
 import EventList from './Components/calender/Calender';
 import EventCalendar from './Components/calender/Calender';
+import AllUsersList from './modules/Admin/Pages/AllUsersList/AllUsersList';
+import BalanceSheetList from './modules/Admin/Pages/BalanceSheet/BalanceSheetList';
 
 function App() {
   return (
@@ -21,8 +23,10 @@ function App() {
 
         <Route path="/admin" element={<BaseLayout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="all-users" element={<AllUsersList />} />
           <Route path="leave-management" element={<LeaveManagement />} />
           <Route path="event-mamgement" element={<EventManagement />} />
+          <Route path="balance-sheet" element={<BalanceSheetList />} />
 
           
           {/* relative path! */}

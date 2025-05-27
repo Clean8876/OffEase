@@ -18,21 +18,18 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
-} from "./LeaveManagement.styles";
+} from "./BalanceSheetList.styles";
 import { CiSearch } from "react-icons/ci";
 import { IoEyeOutline } from "react-icons/io5";
 import { Select } from "antd";
-import { useNavigate } from "react-router-dom";
-import { getAllLeaves } from "../../../../api/LeaveRequestApi";
+import { getAllBalances } from "../../../../api/BalanceApi";
 import LeaveApprovalModal from "../../Components/LeaveApprovalModal/LeaveApprovalModal";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function LeaveManagement() {
-  const navigate = useNavigate();
+export default function BalanceSheetList() {
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [sortOption, setSortOption] = useState("all");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
   const [currentItems, setCurrentItems] = useState([]);
@@ -42,7 +39,9 @@ export default function LeaveManagement() {
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Format date helper, keep it in case you want timestamps somewhere
   const formatToIST = (isoString) => {
+    if (!isoString) return "-";
     const date = new Date(isoString);
     return new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -52,18 +51,25 @@ export default function LeaveManagement() {
     }).format(date);
   };
 
+  // Unique department options from employee data in balance sheets
   const departmentOptions = [
     { value: "all", label: "All Departments" },
     ...Array.from(
-      new Set(data.map((item) => item.employee?.department).filter(Boolean))
+      new Set(
+        data
+          .map((item) => item.employee?.department)
+          .filter(Boolean)
+      )
     ).map((dept) => ({ value: dept, label: dept })),
   ];
 
+  // View modal open
   const handleView = (leave) => {
     setSelectedLeave(leave);
     setIsModalOpen(true);
   };
 
+  // Modal close
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedLeave(null);
@@ -72,8 +78,9 @@ export default function LeaveManagement() {
   useEffect(() => {
     const fetchLeaveData = async () => {
       try {
-        const response = await getAllLeaves();
-        setData(response);
+        const response = await getAllBalances();
+        console.log("Fetched Balance Sheet Data:", response.data);
+        setData(response.data || []);
       } catch (error) {
         console.error("Error fetching leave data:", error);
       }
@@ -85,12 +92,6 @@ export default function LeaveManagement() {
   useEffect(() => {
     let processedData = [...data];
 
-    if (sortOption !== "all") {
-      processedData = processedData.filter(
-        (item) => item.leaveType?.name?.toLowerCase() === sortOption.toLowerCase()
-      );
-    }
-
     if (selectedDepartment !== "all") {
       processedData = processedData.filter(
         (item) => item.employee?.department === selectedDepartment
@@ -98,10 +99,10 @@ export default function LeaveManagement() {
     }
 
     if (searchText) {
-      processedData = processedData.filter(
-        (item) =>
-          item.employee?.Firstname?.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.employee?.Lastname?.toLowerCase().includes(searchText.toLowerCase())
+      processedData = processedData.filter((item) =>
+        (item.employee?.Firstname + " " + item.employee?.Lastname)
+          .toLowerCase()
+          .includes(searchText.toLowerCase())
       );
     }
 
@@ -115,42 +116,20 @@ export default function LeaveManagement() {
     setTotalEntries(total);
     setTotalPages(pages);
     setCurrentItems(items);
-  }, [data, sortOption, searchText, selectedDepartment, currentPage]);
-
-  const handleUpdateStatus = (leaveId, newStatus) => {
-    const updatedData = data.map((item) =>
-      item._id === leaveId ? { ...item, status: newStatus } : item
-    );
-    setData(updatedData);
-    setIsModalOpen(false);
-  };
+  }, [data, searchText, selectedDepartment, currentPage]);
 
   return (
     <>
       <Container>
         <HeaderRow>
           <Title>
-            Leave Approval List{" "}
-            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+            Balance Sheet{" "}
+            <span
+              style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}
+            >
               ({currentItems.length}/{totalEntries})
             </span>
           </Title>
-          <SortByContainer>
-            <SortLabel>Sort by:</SortLabel>
-            <Select
-              defaultValue={sortOption}
-              style={{ width: 120 }}
-              onChange={(value) => {
-                setSortOption(value);
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: "all", label: "All" },
-                { value: "casual", label: "Casual" },
-                { value: "sick", label: "Sick" },
-              ]}
-            />
-          </SortByContainer>
         </HeaderRow>
 
         <SecondHero>
@@ -161,20 +140,14 @@ export default function LeaveManagement() {
             <SearchInput
               placeholder="Search by name"
               value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchText(e.target.value)}
             />
           </SearchWrapper>
           <DepartmentFilter>
             <Select
               style={{ width: 180 }}
               value={selectedDepartment}
-              onChange={(value) => {
-                setSelectedDepartment(value);
-                setCurrentPage(1);
-              }}
+              onChange={(value) => setSelectedDepartment(value)}
               options={departmentOptions}
             />
           </DepartmentFilter>
@@ -186,34 +159,25 @@ export default function LeaveManagement() {
               <TableRow>
                 <TableHeader>Full Name</TableHeader>
                 <TableHeader>Department</TableHeader>
-                <TableHeader>Leave Type</TableHeader>
-                <TableHeader>Start Date</TableHeader>
-                <TableHeader>End Date</TableHeader>
-                <TableHeader>Reason</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                <TableHeader>Remaining Leaves</TableHeader>
+                <TableHeader>Sick Leaves</TableHeader>
+                <TableHeader>Casual Leaves</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {currentItems.map((item) => (
-                <TableRow key={item._id || Math.random()}>
+              {currentItems.map((item, index) => (
+                <TableRow key={item._id ?? index}>
                   <TableCell>
-                    {item.employee?.Firstname || "N/A"} {item.employee?.Lastname || ""}
+                    {item.employee?.name}
                   </TableCell>
-                  <TableCell>{item.employee?.department || "N/A"}</TableCell>
-                  <TableCell>{item.leaveType?.name || "N/A"}</TableCell>
-                  <TableCell>{item.startDate ? formatToIST(item.startDate) : "N/A"}</TableCell>
-                  <TableCell>{item.endDate ? formatToIST(item.endDate) : "N/A"}</TableCell>
-                  <TableCell>{item.reason || "N/A"}</TableCell>
+                  <TableCell>{item.employee?.department || "-"}</TableCell>
+
+                  {/* Rendering .remaining property safely */}
                   <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline
-                        size={20}
-                        title="View"
-                        onClick={() => handleView(item)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </ActionsContainer>
+                    {item.totalRemainingLeaves ?? "-"}
                   </TableCell>
+                  <TableCell>{item.remainingLeaves?.sick ?? "-"}</TableCell>
+                  <TableCell>{item.remainingLeaves?.casual ?? "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -221,7 +185,9 @@ export default function LeaveManagement() {
         </TableWrapper>
 
         <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p>Page {currentPage} of {totalPages}</p>
+          <p>
+            Page {currentPage} of {totalPages}
+          </p>
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
@@ -229,21 +195,15 @@ export default function LeaveManagement() {
             Previous
           </button>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
           >
             Next
           </button>
         </div>
       </Container>
-
-      {isModalOpen && selectedLeave && (
-        <LeaveApprovalModal
-          leave={selectedLeave}
-          onClose={handleCloseModal}
-          onUpdateStatus={handleUpdateStatus}
-        />
-      )}
     </>
   );
 }

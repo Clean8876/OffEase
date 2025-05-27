@@ -19,8 +19,10 @@ const AdminSidebar = () => {
   // Flat list of all menu items combined
   const menuItems = [
     { path: "/admin", label: "Dashboard" },
+    { path: "/admin/all-users", label: "All Users" },
     { path: "/admin/leave-management", label: "Leave Management" },
     { path: "/admin/event-mamgement", label: "Event Management" },
+    { path: "/admin/balance-sheet", label: "Balance Sheet" },
   ];
 
   return (
