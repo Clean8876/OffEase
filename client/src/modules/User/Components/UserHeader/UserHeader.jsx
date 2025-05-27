@@ -1,77 +1,92 @@
-import React, { useState, useRef } from "react";
-import { 
-    HeaderContainer, 
-    HeaderWrapper, 
-    HeaderTitle, 
-    ProfileContainer, 
-    ProfileIcon, 
-    DropdownMenu 
-} from "./UserHeader.styles";
+import React, { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
+import {
+  HeaderContainer,
+  HeaderWrapper,
+  HeaderTitle,
+  ProfileContainer,
+  ProfileIcon,
+  DropdownMenu
+} from "./UserHeader.styles";
+
+import { getUserById } from "../../../../api/AuthApi"; // Adjust path if needed
 
 const SidebarItem = [
-    { id: 1, name: "Dashboard", path: "/employee"},
-    { id: 2, name: "Apply Leave", path: "/user/applyleave" },
-    { id: 3, name: "Balance Sheet", path: "/" },
-    { id: 4, name: "Calender", path: "/user/calander"  },
-    {id:5, name:"Profile", path:"/user/profile"},
-    // { id: 5, name: "", path: "/", icon: <GiWaterGallon /> },
-  ];
+  { id: 1, name: "Dashboard", path: "/user" },
+  { id: 2, name: "Apply Leave", path: "/user/applyleave" },
+  { id: 3, name: "Balance Sheet", path: "/" },
+  { id: 4, name: "Calender", path: "/user/calander" },
+  { id: 5, name: "Profile", path: "/user/profile" },
+];
 
-const UserHeader = ( ) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [Title, setTitle] = useState(null); // <-- Add userData state
-    const dropdownRef = useRef(null);
+const UserHeader = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [Title, setTitle] = useState(""); // Store user full name
+  const dropdownRef = useRef(null);
 
+  const toggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
 
-    const toggleDropdown = () => {
-        setDropdownOpen((prev) => !prev);
+  const handleLogout = () => {
+    localStorage.clear(); // Optionally clear all data
+    window.location.href = "/";
+  };
+
+  // Fetch user name on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await getUserById();
+        const fullName = `${response.data.Firstname || ""}`.trim();
+        setTitle(fullName);
+      } catch (error) {
+        console.error("Failed to fetch user name", error);
+      }
     };
 
-    const handleLogout = () => {
-        // localStorage.clear();
-        window.location.href = "/login";
-    };
+    fetchUserData();
+  }, []);
 
-    return (
-        <HeaderContainer>
-            <HeaderWrapper>
-                 <ul className="menu-list">
+  return (
+    <HeaderContainer>
+      <HeaderWrapper>
+        <ul className="menu-list">
           {SidebarItem.map((item) => (
             <li className="menu-item" key={item.id}>
               <NavLink
                 to={item.path}
-                className={({ isActive }) => (isActive ? "menu-link active" : "menu-link")}
+                className={({ isActive }) =>
+                  isActive ? "menu-link active" : "menu-link"
+                }
                 onClick={() => {
-                  setTitle(item.name);
-                  localStorage.setItem("title", JSON.stringify(item.name)); // Store in Local Storage
+                  localStorage.setItem("title", JSON.stringify(item.name));
                 }}
                 end
               >
                 <span className="menu-link-icon">{item.icon}</span>
-               <span className="menu-link-text">{item.name}</span>
+                <span className="menu-link-text">{item.name}</span>
               </NavLink>
             </li>
           ))}
         </ul>
 
-                <ProfileContainer ref={dropdownRef}>
-                  <span>Welcome, !</span>
-                    
-                    <ProfileIcon onClick={toggleDropdown}>
-                        <FaUserCircle size={24} />
-                    </ProfileIcon>
+        <ProfileContainer ref={dropdownRef}>
+          <span>Welcome, {Title || "User"}!</span>
+          <ProfileIcon onClick={toggleDropdown}>
+            <FaUserCircle size={24} />
+          </ProfileIcon>
 
-                    {dropdownOpen && (
-                        <DropdownMenu>
-                            <button onClick={handleLogout}>Logout</button>
-                        </DropdownMenu>
-                    )}
-                </ProfileContainer>
-            </HeaderWrapper>
-        </HeaderContainer>
-    );
+          {dropdownOpen && (
+            <DropdownMenu>
+              <button onClick={handleLogout}>Logout</button>
+            </DropdownMenu>
+          )}
+        </ProfileContainer>
+      </HeaderWrapper>
+    </HeaderContainer>
+  );
 };
 
 export default UserHeader;
