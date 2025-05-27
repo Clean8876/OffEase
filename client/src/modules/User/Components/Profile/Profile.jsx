@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; // Import useEffect
+import { getUserById } from '../../../../api/AuthApi'; // Adjust path if needed
 import {
   Container,
   AvatarSection,
@@ -9,12 +10,12 @@ import {
   Label,
   Input,
   MobileInputContainer,
-  FixedCode,
+  // FixedCode,
   MobileNumberInput,
-  FileUploadContainer,
-  UploadButton,
-  BrowseButton,
-  SaveButton,
+  // FileUploadContainer, // Commented out unused imports
+  // UploadButton,
+  // BrowseButton,
+  // SaveButton,
   FlexRow
 } from './Profile.styles';
 
@@ -23,17 +24,51 @@ import defaultAvatar from '../../../../assets/profile.png';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({
-    fullName: 'Ryan Kr',
-    email: 'ryan142@gmail.com',
-    mobile: '9374624931',
-    designation: 'Developer',
-    role: 'employee',
-    photo: '',
-    idProof: ''
-  });
+  fullName: '',
+  email: '',
+  employmentId: '', // 👈 Add this field
+  designation: '',
+  role: '',
+  photo: '',
+  idProof: ''
+});
+
 
   const [profileImage, setProfileImage] = useState(defaultAvatar);
   const profilePhotoInputRef = useRef(null);
+
+  // --- Fetch User Data on Component Mount ---
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userData = await getUserById();
+        console.log('Fetched user data:', userData.data); // Log to see the structure
+
+        // Map the API response to your profileData state
+       setProfileData({
+  fullName: `${userData.data.Firstname || ''} ${userData.data.Lastname || ''}`.trim(),
+  email: userData.data.email || '',
+  employmentId: userData.data.employmentId || '', // 👈 Add this line
+  designation: userData.data.department || '',
+  role: userData.data.role || '',
+  photo: userData.data.profilePictureUrl || '',
+  idProof: ''
+});
+
+
+        // If a profile picture URL exists, use it
+        if (userData.data.profilePictureUrl) {
+          setProfileImage(userData.data.profilePictureUrl);
+        }
+
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        // Handle error, e.g., show a toast notification
+      }
+    };
+
+    fetchUserProfile();
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,12 +85,18 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImage(reader.result);
+        // You might also want to set `profileData.photo` to the file or a URL for upload later
       };
       reader.readAsDataURL(file);
     }
   };
 
-  
+  const handleSaveChanges = (e) => {
+    e.preventDefault();
+    // Here you would typically send profileData to a backend API to save changes
+    console.log('Saving changes:', profileData);
+    // Example: call an update API like: await updateUserProfile(profileData);
+  };
 
   return (
     <Container>
@@ -77,7 +118,7 @@ const Profile = () => {
         </div>
       </AvatarSection>
 
-      <Form>
+      <Form onSubmit={handleSaveChanges}> {/* Add onSubmit handler */}
         <FlexRow>
           <InputGroup>
             <Label>Full Name</Label>
@@ -86,18 +127,20 @@ const Profile = () => {
               name="fullName"
               value={profileData.fullName}
               onChange={handleInputChange}
+              readOnly 
             />
           </InputGroup>
 
           <InputGroup>
-            <Label>Mobile</Label>
+            <Label>EmployeeId</Label>
             <MobileInputContainer>
-              <FixedCode>+91</FixedCode>
-              <div className="numberLine" />
+              {/* <FixedCode>+91</FixedCode>
+              <div className="numberLine" /> */}
               <MobileNumberInput
-                name="mobile"
-                value={profileData.mobile}
+                name="Id"
+                value={profileData.employmentId}
                 onChange={handleInputChange}
+                readOnly
               />
             </MobileInputContainer>
           </InputGroup>
@@ -111,6 +154,7 @@ const Profile = () => {
               name="email"
               value={profileData.email}
               onChange={handleInputChange}
+              readOnly 
             />
           </InputGroup>
         </FlexRow>
@@ -123,6 +167,7 @@ const Profile = () => {
               name="designation"
               value={profileData.designation}
               onChange={handleInputChange}
+              readOnly 
             />
           </InputGroup>
         </FlexRow>
@@ -135,23 +180,14 @@ const Profile = () => {
               name="role"
               value={profileData.role}
               onChange={handleInputChange}
+              readOnly
             />
           </InputGroup>
         </FlexRow>
 
-        <FlexRow>
-          {/* <InputGroup>
-            <Label>
-              Upload Photo <small>(Passport Size)</small>
-            </Label>
-            <FileUploadContainer>
-              <UploadButton>📤 Upload Document</UploadButton>
-              <BrowseButton onClick={handleProfilePhotoUploadClick}>Browse</BrowseButton>
-            </FileUploadContainer>
-          </InputGroup> */}
-        </FlexRow>
+        {/* ... (Your file upload section, if you want to keep it) */}
 
-        <SaveButton>Save Changes</SaveButton>
+        {/* <SaveButton type="submit">Save Changes</SaveButton> Set type to submit */}
       </Form>
     </Container>
   );

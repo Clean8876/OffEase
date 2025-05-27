@@ -1,160 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import {
-  Container,
-  LeaveSection,
-  CalendarSection,
-  BalanceContainer,
-  Labeling,
-  LeaveType,
-  LeaveValue,
-  CalendarWrapper,
-  Heading,
-  FormWrapper,
-  Row,
-  Label,
-  Input,
-  Select,
-  TextArea,
-  ButtonRow,
-  Button,
-  TableContainer,
-  StyledTable,
-  TableHeader,
-  TableRow,
-  TableCell,
-  StatusBadge,
+  Container, LeaveSection, Heading, FormWrapper, Row, Label, Input, Select,
+  TextArea, ButtonRow, Button, TableContainer, StyledTable, TableHeader, TableRow,
+  TableCell, StatusBadge, ReasonAnddescription
 } from "./ApplyLeave.styles";
+import {
+  submitLeaveRequest,
+  getLeaveBalances,
+  getLeaveRequests
+} from '../../../../api/LeaveRequestApi';
 
-const ApplyLeave = ({ leaveData = [] }) => {
-  // Use local state for leave requests to update the table dynamically.
-  const [leaves, setLeaves] = useState(leaveData);
-
-  const remainingleave = {
-  CL: 0.75,
-  SL: 2.83,
-  EL: 8.52,
-  FL: 2,
-};
-
+const ApplyLeave = () => {
+  const [leaves, setLeaves] = useState([]);
+  const [remainingleave, setRemainingLeave] = useState({});
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
     leaveType: "",
     reason: "",
+    description: ""
   });
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  useEffect(() => {
+    fetchBalances();
+    fetchRequests();
+  }, []);
+
+  const fetchBalances = async () => {
+    try {
+      const balances = await getLeaveBalances();
+      const mapped = {};
+      balances.forEach(b => {
+        mapped[b.leaveType.name] = b.remainingDays;
+      });
+      setRemainingLeave(mapped);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchRequests = async () => {
+    try {
+      const data = await getLeaveRequests();
+      setLeaves(data.map(req => ({
+        leaveType: req.leaveType.name,
+        startDate: req.startDate,
+        endDate: req.endDate,
+        noOfDays: calculateDays(req.startDate, req.endDate),
+        status: req.status
+      })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle the form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Build a new leave request object. Status here is assumed "pending"
-    const newLeave = {
-      leaveType: formData.leaveType,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      noOfDays: calculateDays(formData.startDate, formData.endDate),
-      status: "pending",
-    };
-
-    // Update state so the new leave appears on the table.
-    setLeaves([...leaves, newLeave]);
-
-    // Optionally, reset the form
-    setFormData({
-      startDate: "",
-      endDate: "",
-      leaveType: "",
-      reason: "",
-    });
+    try {
+      const response = await submitLeaveRequest(formData);
+      await fetchBalances();
+      await fetchRequests();
+      setFormData({ startDate: "", endDate: "", leaveType: "", reason: "", description: "" });
+      console.log("Leave Request submitted:", response);
+      return response;
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (
     <Container>
       <Heading>Apply Leave</Heading>
       <LeaveSection>
-        <CalendarSection>
-            <BalanceContainer>
-      <Labeling>Available Leave Balance:</Labeling>
-      {Object.entries(remainingleave).map(([type, value]) => (
-        <LeaveType key={type}>
-          {type}: <LeaveValue>{value}</LeaveValue>
-        </LeaveType>
-      ))}
-    </BalanceContainer>
-          <CalendarWrapper>
-            <Calendar onChange={setSelectedDate} value={selectedDate} />
-          </CalendarWrapper>
-        </CalendarSection>
+        {/* <CalendarSection> */}
+          
+
+          {/* <CalendarWrapper>
+    <Calendar onChange={setSelectedDate} value={selectedDate} />
+  </CalendarWrapper> */}
+        {/* </CalendarSection> */}
+
 
         <FormWrapper>
-          {/* Wrap the form elements in a form element */}
           <form onSubmit={handleSubmit}>
             <Row>
               <Label>
                 Start Date<span>*</span>
-                <Input
-                  type="date"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleInputChange}
-                  required
-                />
+                <Input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required />
               </Label>
               <Label>
                 End Date<span>*</span>
-                <Input
-                  type="date"
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleInputChange}
-                  required
-                />
+                <Input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required />
               </Label>
               <Label>
                 Leave Type<span>*</span>
-                <Select
-                  name="leaveType"
-                  value={formData.leaveType}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select</option>
-                  <option value="Sick Leave">Sick Leave</option>
-                  <option value="Casual Leave">Casual Leave</option>
+                <Select name="leaveType" value={formData.leaveType} onChange={handleInputChange} required>
+                  <option value="select">Select</option>
+                  <option value="sick">Sick Leave</option>
+                  <option value="casual">Casual Leave</option>
                 </Select>
               </Label>
               <Label>
                 No. of Days
-                <Input
-                  type="number"
-                  value={calculateDays(formData.startDate, formData.endDate)}
-                  disabled
-                />
+                <Input type="number" value={calculateDays(formData.startDate, formData.endDate)} disabled />
               </Label>
             </Row>
+            <ReasonAnddescription>
+              <Label>
+                Reason<span>*</span>
+                <Input name="reason" value={formData.reason} onChange={handleInputChange} required />
+              </Label>
+              <Label>
+                Description<span>*</span>
+                <TextArea name="description" value={formData.description} onChange={handleInputChange} rows={6} required />
+              </Label>
 
-            <Label>
-              Detailed Reason<span>*</span>
-              <TextArea
-                name="reason"
-                value={formData.reason}
-                onChange={handleInputChange}
-                rows={8}
-                required
-              />
-            </Label>
-
+            </ReasonAnddescription>
             <ButtonRow>
-              <Button type="submit" bg="#1976d2">
-                Submit
-              </Button>
+              <Button type="submit" bg="#1976d2">Submit</Button>
             </ButtonRow>
           </form>
         </FormWrapper>
@@ -178,9 +147,7 @@ const ApplyLeave = ({ leaveData = [] }) => {
                 <TableCell>{leave.startDate}</TableCell>
                 <TableCell>{leave.endDate}</TableCell>
                 <TableCell>{leave.noOfDays}</TableCell>
-                <TableCell>
-                  <StatusBadge status={leave.status}>{leave.status}</StatusBadge>
-                </TableCell>
+                <TableCell><StatusBadge status={leave.status}>{leave.status}</StatusBadge></TableCell>
               </TableRow>
             ))}
           </tbody>
