@@ -34,13 +34,38 @@ export const initLeaveBalances = async (req, res) => {
   }
 };
 
-// EMPLOYEE: view own leave balances
+//GetBy ID(EMPLOYEE) or   view own leave balances
 export const getMyLeaveBalances = async (req, res) => {
   try {
     const balances = await LeaveBalance
       .find({ employee: req.user.id })
       .populate("leaveType", "name advanceNoticeDays autoApproval");
-    res.json(balances);
+
+    let totalRemaining = 0;
+    let totalUsed = 0;
+    const leaveDetails = {};
+
+    balances.forEach(balance => {
+      const used = balance.totalDays - balance.remainingDays;
+      totalRemaining += balance.remainingDays;
+      totalUsed += used;
+
+      leaveDetails[balance.leaveType.name] = {
+        leaveType: balance.leaveType.name,
+        advanceNoticeDays: balance.leaveType.advanceNoticeDays,
+        autoApproval: balance.leaveType.autoApproval,
+        totalDays: balance.totalDays,
+        usedDays: used,
+        remainingDays: balance.remainingDays,
+      };
+    });
+
+    res.json({
+      employee: req.user.id,
+      totalRemaining,
+      totalUsed,
+      leaveDetails
+    });
   } catch (err) {
     res.status(500).json({ message: "Error fetching balances", error: err.message });
   }
@@ -169,12 +194,53 @@ export const updateLeaveRequestStatus = async (req, res) => {
     await request.save();
 
     if (status === "approved") {
-      const days = Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24)) + 1;
-      await LeaveBalance.findOneAndUpdate(
-        { employee: request.employee, leaveType: request.leaveType._id },
-        { $inc: { remainingDays: -days } }
-      );
+  const start = new Date(request.startDate);
+  const end = new Date(request.endDate);
+  let validDays = 0;
+
+  for (
+    let date = new Date(start);
+    date <= end;
+    date.setDate(date.getDate() + 1)
+  ) {
+    const current = new Date(date); // Avoid mutation
+    const day = current.getDay();
+
+    // Skip Sundays
+    if (day === 0) continue;
+
+    // Check for 2nd Saturday
+    if (day === 6) {
+      const month = current.getMonth();
+      const year = current.getFullYear();
+
+      // Count Saturdays in the current month
+      let saturdayCount = 0;
+      for (let d = 1; d <= current.getDate(); d++) {
+        const temp = new Date(year, month, d);
+        if (temp.getDay() === 6) {
+          saturdayCount++;
+        }
+      }
+
+      if (saturdayCount === 2) {
+        // It's the 2nd Saturday
+        continue;
+      }
     }
+
+    // Count as a valid leave day
+    validDays++;
+  }
+
+  if (validDays > 0) {
+    await LeaveBalance.findOneAndUpdate(
+      { employee: request.employee, leaveType: request.leaveType._id },
+      { $inc: { remainingDays: -validDays } }
+    );
+  }
+}
+
 
     res.json({ message: `Leave request ${status} successfully`, request });
   } catch (err) {
@@ -202,3 +268,59 @@ export const deleteLeaveRequest = async (req, res) => {
     res.status(500).json({ message: "Error deleting leave request", error: err.message });
   }
 };
+
+// ADMIN: view all employees' leave balances
+export const getAllLeaveBalances = async (req, res) => {
+  try {
+    const balances = await LeaveBalance
+      .find()
+      .populate("employee", "name email") 
+      .populate("leaveType", "name advanceNoticeDays autoApproval");
+
+    const employeeBalances = {};
+
+    balances.forEach(balance => {
+      // Skip if employee or leaveType is missing
+      if (!balance.employee || !balance.leaveType) {
+        console.warn("Skipping invalid LeaveBalance:", balance._id);
+        return;
+      }
+
+      const empId = balance.employee._id.toString();
+      const used = balance.totalDays - balance.remainingDays;
+
+      // Initialize employee entry
+      if (!employeeBalances[empId]) {
+        employeeBalances[empId] = {
+          employee: {
+            id: empId,
+            name: balance.employee.name,
+            email: balance.employee.email
+          },
+          totalRemaining: 0,
+          totalUsed: 0,
+          leaveDetails: {}
+        };
+      }
+
+      // Add balance data
+      employeeBalances[empId].totalRemaining += balance.remainingDays;
+      employeeBalances[empId].totalUsed += used;
+
+      employeeBalances[empId].leaveDetails[balance.leaveType.name] = {
+        leaveType: balance.leaveType.name,
+        advanceNoticeDays: balance.leaveType.advanceNoticeDays,
+        autoApproval: balance.leaveType.autoApproval,
+        totalDays: balance.totalDays,
+        usedDays: used,
+        remainingDays: balance.remainingDays
+      };
+    });
+
+    // Convert to array and return
+    res.json(Object.values(employeeBalances));
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching all balances", error: err.message });
+  }
+};
+
