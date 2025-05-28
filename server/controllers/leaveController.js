@@ -194,12 +194,53 @@ export const updateLeaveRequestStatus = async (req, res) => {
     await request.save();
 
     if (status === "approved") {
-      const days = Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24)) + 1;
-      await LeaveBalance.findOneAndUpdate(
-        { employee: request.employee, leaveType: request.leaveType._id },
-        { $inc: { remainingDays: -days } }
-      );
+  const start = new Date(request.startDate);
+  const end = new Date(request.endDate);
+  let validDays = 0;
+
+  for (
+    let date = new Date(start);
+    date <= end;
+    date.setDate(date.getDate() + 1)
+  ) {
+    const current = new Date(date); // Avoid mutation
+    const day = current.getDay();
+
+    // Skip Sundays
+    if (day === 0) continue;
+
+    // Check for 2nd Saturday
+    if (day === 6) {
+      const month = current.getMonth();
+      const year = current.getFullYear();
+
+      // Count Saturdays in the current month
+      let saturdayCount = 0;
+      for (let d = 1; d <= current.getDate(); d++) {
+        const temp = new Date(year, month, d);
+        if (temp.getDay() === 6) {
+          saturdayCount++;
+        }
+      }
+
+      if (saturdayCount === 2) {
+        // It's the 2nd Saturday
+        continue;
+      }
     }
+
+    // Count as a valid leave day
+    validDays++;
+  }
+
+  if (validDays > 0) {
+    await LeaveBalance.findOneAndUpdate(
+      { employee: request.employee, leaveType: request.leaveType._id },
+      { $inc: { remainingDays: -validDays } }
+    );
+  }
+}
+
 
     res.json({ message: `Leave request ${status} successfully`, request });
   } catch (err) {
@@ -228,13 +269,12 @@ export const deleteLeaveRequest = async (req, res) => {
   }
 };
 
-// ADMIN: view all employees' leave balances (combined)
-// ADMIN: view all employees' leave balances (combined)
+// ADMIN: view all employees' leave balances
 export const getAllLeaveBalances = async (req, res) => {
   try {
     const balances = await LeaveBalance
       .find()
-      .populate("employee", "name email") // Assuming Employee has these fields
+      .populate("employee", "name email") 
       .populate("leaveType", "name advanceNoticeDays autoApproval");
 
     const employeeBalances = {};
