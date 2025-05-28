@@ -6,7 +6,8 @@ import {
   getMyLeaveRequests,
   getLeaveRequestsWithBalances,
   updateLeaveRequestStatus,
-  deleteLeaveRequest
+  deleteLeaveRequest,
+  getAllLeaveBalances
 } from "../controllers/leaveController.js";
 import { authenticateToken, forAdmin, forEmployee } from "../middleware/authMiddleware.js";
 
@@ -15,6 +16,10 @@ const router = express.Router();
 // Admin initializes leave quotas on employee creation
 router.post("/balance/init",authenticateToken, forAdmin,initLeaveBalances
 );
+// Admin  views All employee leave balances
+router.get("/Allbalance",authenticateToken, forAdmin,getAllLeaveBalances
+);
+
 // Employee views their balances
 router.get("/balance",authenticateToken, forEmployee,getMyLeaveBalances
 );
@@ -30,5 +35,9 @@ router.get('/', authenticateToken, forAdmin, getLeaveRequestsWithBalances);
 router.patch('/requests/status', authenticateToken, forAdmin, updateLeaveRequestStatus);
 //delete leave request
 router.delete("/:id", authenticateToken, forEmployee, deleteLeaveRequest);
+
+
+
+
 
 export default router;

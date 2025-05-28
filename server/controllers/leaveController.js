@@ -34,13 +34,38 @@ export const initLeaveBalances = async (req, res) => {
   }
 };
 
-// EMPLOYEE: view own leave balances
+//GetBy ID(EMPLOYEE) or   view own leave balances
 export const getMyLeaveBalances = async (req, res) => {
   try {
     const balances = await LeaveBalance
       .find({ employee: req.user.id })
       .populate("leaveType", "name advanceNoticeDays autoApproval");
-    res.json(balances);
+
+    let totalRemaining = 0;
+    let totalUsed = 0;
+    const leaveDetails = {};
+
+    balances.forEach(balance => {
+      const used = balance.totalDays - balance.remainingDays;
+      totalRemaining += balance.remainingDays;
+      totalUsed += used;
+
+      leaveDetails[balance.leaveType.name] = {
+        leaveType: balance.leaveType.name,
+        advanceNoticeDays: balance.leaveType.advanceNoticeDays,
+        autoApproval: balance.leaveType.autoApproval,
+        totalDays: balance.totalDays,
+        usedDays: used,
+        remainingDays: balance.remainingDays,
+      };
+    });
+
+    res.json({
+      employee: req.user.id,
+      totalRemaining,
+      totalUsed,
+      leaveDetails
+    });
   } catch (err) {
     res.status(500).json({ message: "Error fetching balances", error: err.message });
   }
@@ -202,3 +227,60 @@ export const deleteLeaveRequest = async (req, res) => {
     res.status(500).json({ message: "Error deleting leave request", error: err.message });
   }
 };
+
+// ADMIN: view all employees' leave balances (combined)
+// ADMIN: view all employees' leave balances (combined)
+export const getAllLeaveBalances = async (req, res) => {
+  try {
+    const balances = await LeaveBalance
+      .find()
+      .populate("employee", "name email") // Assuming Employee has these fields
+      .populate("leaveType", "name advanceNoticeDays autoApproval");
+
+    const employeeBalances = {};
+
+    balances.forEach(balance => {
+      // Skip if employee or leaveType is missing
+      if (!balance.employee || !balance.leaveType) {
+        console.warn("Skipping invalid LeaveBalance:", balance._id);
+        return;
+      }
+
+      const empId = balance.employee._id.toString();
+      const used = balance.totalDays - balance.remainingDays;
+
+      // Initialize employee entry
+      if (!employeeBalances[empId]) {
+        employeeBalances[empId] = {
+          employee: {
+            id: empId,
+            name: balance.employee.name,
+            email: balance.employee.email
+          },
+          totalRemaining: 0,
+          totalUsed: 0,
+          leaveDetails: {}
+        };
+      }
+
+      // Add balance data
+      employeeBalances[empId].totalRemaining += balance.remainingDays;
+      employeeBalances[empId].totalUsed += used;
+
+      employeeBalances[empId].leaveDetails[balance.leaveType.name] = {
+        leaveType: balance.leaveType.name,
+        advanceNoticeDays: balance.leaveType.advanceNoticeDays,
+        autoApproval: balance.leaveType.autoApproval,
+        totalDays: balance.totalDays,
+        usedDays: used,
+        remainingDays: balance.remainingDays
+      };
+    });
+
+    // Convert to array and return
+    res.json(Object.values(employeeBalances));
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching all balances", error: err.message });
+  }
+};
+
