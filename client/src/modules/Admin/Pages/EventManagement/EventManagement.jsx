@@ -49,6 +49,10 @@ export default function EventManagement() {
 
   const handleAddEvent = async () => {
     try {
+      if (newEvent.type === 'team_event' && newEvent.targetTeams.length === 0) {
+    alert('Please select at least one team for team events');
+    return;
+  }
       // combine date+time → ISO
       const isoDate = new Date(`${newEvent.date}T${newEvent.time}`).toISOString();
 
@@ -58,7 +62,7 @@ export default function EventManagement() {
         date: isoDate,
         type: newEvent.type,
      
-        targetTeams: [newEvent.targetTeams],
+        targetTeams:  newEvent.targetTeams,
       };
 
       await axios.post(
@@ -67,7 +71,9 @@ export default function EventManagement() {
         {  headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         } }
+        
       );
+      
 
       // reset + close
       setNewEvent({
@@ -76,7 +82,7 @@ export default function EventManagement() {
         date: "",
         time: "",
         type: "team_event",
-        targetTeam: "marketing",
+        targetTeam: [],
       });
       setShowModal(false);
 
@@ -136,18 +142,21 @@ export default function EventManagement() {
             </select>
 
            <label>Target Team:</label>
-            <select
-              value={newEvent.targetTeams}
-              onChange={(e) => setNewEvent({
-              ...newEvent,
-              targetTeams: [e.target.value.trim().toLowerCase()]
-            })}
-              style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-            >
-              {teams.map((team) => (
-                <option key={team} value={team}>{team}</option>
-              ))}
-            </select>
+          <select
+            multiple
+            value={newEvent.targetTeams}
+            onChange={(e) => {
+              const selectedTeams = Array.from(e.target.selectedOptions, option => option.value);
+              setNewEvent({ ...newEvent, targetTeams: selectedTeams });
+            }}
+            className="w-full p-2 border rounded-md" // Optional Tailwind styling
+          >
+            {teams.map((team) => (
+              <option key={team} value={team}>
+                {team}
+              </option>
+            ))}
+          </select>
 
             <ButtonGroup>
               <SaveButton onClick={handleAddEvent}>Save</SaveButton>

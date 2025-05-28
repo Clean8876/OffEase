@@ -4,7 +4,7 @@ import EventData from "../models/EventSchmea.js";
 
 export const createEvent = async (req, res) =>{
   try {
-      const { role, team, id: userId } = req.user;
+      const { role, id: userId } = req.user;
       const { title, description, date, type, targetTeams } = req.body;
         // Validation
       const validationErrors = [];
@@ -115,7 +115,7 @@ export const createEvent = async (req, res) =>{
 
 export const getEvent = async (req, res) =>{
     try{
-         const { department, role, id } = req.user;
+         const { department, role } = req.user;
             // Validate user department
         if (!department) {
         return res.status(400).json({
@@ -124,17 +124,17 @@ export const getEvent = async (req, res) =>{
         });
         }
          
-        const query = {
-        $or: [
-            
-            { type: 'company_event' },
-            // Include team events where user's department is in targetTeams
-            { 
-            type: 'team_event',
-            targetTeams: { $in: [department] }
-            }
-        ]
-        };
+        const query = role === 'admin' 
+          ? {} // Admins get everything
+          : {
+              $or: [
+                { type: 'company_event' },
+                { 
+                  type: 'team_event',
+                  targetTeams: { $in: [department] }
+                }
+              ]
+            };
          const events = await EventData.find(query)
         .select('title description date type targetTeams createdAt') // Only select needed fields
         .sort({ date: 1 }) // Sort by date ascending (earliest first)
