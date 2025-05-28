@@ -2,19 +2,25 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import {
-  Container, LeaveSection, Heading, FormWrapper, Row, Label, Input, Select,
+  Container, LeaveSection, FormWrapper, Row, Label, Input, Select,
   TextArea, ButtonRow, Button, TableContainer, StyledTable, TableHeader, TableRow,
   TableCell, StatusBadge, ReasonAnddescription
 } from "./ApplyLeave.styles";
 import {
   submitLeaveRequest,
-  getLeaveBalances,
   getLeaveRequests
 } from '../../../../api/LeaveRequestApi';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { toast } from 'react-toastify';
+
 
 const ApplyLeave = () => {
   const [leaves, setLeaves] = useState([]);
-  const [remainingleave, setRemainingLeave] = useState({});
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
+  
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -23,23 +29,29 @@ const ApplyLeave = () => {
     description: ""
   });
 
+  
+
   useEffect(() => {
-    fetchBalances();
     fetchRequests();
   }, []);
 
-  const fetchBalances = async () => {
-    try {
-      const balances = await getLeaveBalances();
-      const mapped = {};
-      balances.forEach(b => {
-        mapped[b.leaveType.name] = b.remainingDays;
-      });
-      setRemainingLeave(mapped);
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    if (selectedStartDate) {
+      setFormData((prev) => ({
+        ...prev,
+        startDate: selectedStartDate.toISOString().split("T")[0],
+      }));
     }
-  };
+  }, [selectedStartDate]);
+
+  useEffect(() => {
+    if (selectedEndDate) {
+      setFormData((prev) => ({
+        ...prev,
+        endDate: selectedEndDate.toISOString().split("T")[0],
+      }));
+    }
+  }, [selectedEndDate]);
 
   const fetchRequests = async () => {
     try {
@@ -57,71 +69,130 @@ const ApplyLeave = () => {
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await submitLeaveRequest(formData);
-      await fetchBalances();
-      await fetchRequests();
-      setFormData({ startDate: "", endDate: "", leaveType: "", reason: "", description: "" });
-      console.log("Leave Request submitted:", response);
-      return response;
-    } catch (err) {
-      alert(err.message);
+  e.preventDefault();
+  try {
+    const response = await submitLeaveRequest(formData);
+    await fetchRequests();
+
+    toast.success("Leave Request submitted successfully!");
+
+    // Reset form
+    setFormData({
+      startDate: "",
+      endDate: "",
+      leaveType: "",
+      reason: "",
+      description: ""
+    });
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
+    console.log("Leave Request submitted:", response);
+  } catch (err) {
+    const message = err.response?.data?.message || err.message;
+
+    // Check for balance-related message
+    if (message.toLowerCase().includes("insufficient")) {
+      toast.error("Insufficient leave balance"); 
+    } else {
+      toast.error("Failed to submit leave request.");
     }
-  };
+  }
+};
+
+
 
   return (
     <Container>
-      <Heading>Apply Leave</Heading>
+      {/* <Heading>Apply Leave</Heading> */}
+      <ToastContainer position="top-center"/>
+
       <LeaveSection>
-        {/* <CalendarSection> */}
-          
-
-          {/* <CalendarWrapper>
-    <Calendar onChange={setSelectedDate} value={selectedDate} />
-  </CalendarWrapper> */}
-        {/* </CalendarSection> */}
-
-
         <FormWrapper>
           <form onSubmit={handleSubmit}>
             <Row>
               <Label>
                 Start Date<span>*</span>
-                <Input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} required />
+                <Calendar
+                  onChange={setSelectedStartDate}
+                  value={selectedStartDate}
+                  tileDisabled={({ date }) => {
+                    const today = new Date();
+                    return (
+                      date < new Date(today.setHours(0, 0, 0, 0)) ||
+                      date.getDay() === 0 // Sunday
+                    );
+                  }}
+                />
               </Label>
+
               <Label>
                 End Date<span>*</span>
-                <Input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} required />
+                <Calendar
+                  onChange={setSelectedEndDate}
+                  value={selectedEndDate}
+                  tileDisabled={({ date }) => {
+                    const today = new Date();
+                    return (
+                      date < new Date(today.setHours(0, 0, 0, 0)) ||
+                      date.getDay() === 0
+                    );
+                  }}
+                />
               </Label>
+
               <Label>
                 Leave Type<span>*</span>
-                <Select name="leaveType" value={formData.leaveType} onChange={handleInputChange} required>
+                <Select
+                  name="leaveType"
+                  value={formData.leaveType}
+                  onChange={handleInputChange}
+                  required
+                >
                   <option value="select">Select</option>
-                  <option value="sick">Sick Leave</option>
                   <option value="casual">Casual Leave</option>
+                  <option value="sick">Sick Leave</option>
+
                 </Select>
               </Label>
+
               <Label>
                 No. of Days
-                <Input type="number" value={calculateDays(formData.startDate, formData.endDate)} disabled />
+                <Input
+                  type="number"
+                  value={calculateDays(formData.startDate, formData.endDate)}
+                  disabled
+                />
               </Label>
             </Row>
+
             <ReasonAnddescription>
               <Label>
                 Reason<span>*</span>
-                <Input name="reason" value={formData.reason} onChange={handleInputChange} required />
-              </Label>
-              <Label>
-                Description<span>*</span>
-                <TextArea name="description" value={formData.description} onChange={handleInputChange} rows={6} required />
+                <Input
+                  name="reason"
+                  value={formData.reason}
+                  onChange={handleInputChange}
+                  required
+                />
               </Label>
 
+              <Label>
+                Description<span>*</span>
+                <TextArea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={4}
+                  required
+                />
+              </Label>
             </ReasonAnddescription>
+
             <ButtonRow>
               <Button type="submit" bg="#1976d2">Submit</Button>
             </ButtonRow>
@@ -157,12 +228,22 @@ const ApplyLeave = () => {
   );
 };
 
+// Exclude Sundays and past dates
 const calculateDays = (start, end) => {
   if (!start || !end) return 0;
-  const startDate = new Date(start);
+  let count = 0;
+  let current = new Date(start);
   const endDate = new Date(end);
-  const diff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-  return diff > 0 ? diff : 0;
+
+  while (current <= endDate) {
+    const day = current.getDay(); // 0 = Sunday
+    if (day !== 0) {
+      count++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  return count;
 };
 
 export default ApplyLeave;

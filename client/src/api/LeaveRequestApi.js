@@ -35,16 +35,8 @@ export const getAllLeaves = async () => {
 export const submitLeaveRequest = async (formData) => {
   const token = localStorage.getItem("token");
 
-  const leaveTypeMap = {
-    sick: "68315f7792aa63399c0a88be",
-    casual: "68315f6892aa63399c0a88bc"
-  };
-
-  const leaveTypeId = leaveTypeMap[formData.leaveType];
-  if (!leaveTypeId) throw new Error("Invalid leave type selected");
-
   const payload = {
-    leaveTypeId,
+    leaveTypeName: formData.leaveType, 
     startDate: formData.startDate,
     endDate: formData.endDate,
     reason: formData.reason,
@@ -60,6 +52,7 @@ export const submitLeaveRequest = async (formData) => {
 
   return response.data;
 };
+
 
 
  
