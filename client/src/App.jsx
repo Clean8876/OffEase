@@ -14,6 +14,7 @@ import EventList from './Components/calender/Calender';
 import EventCalendar from './Components/calender/Calender';
 import AllUsersList from './modules/Admin/Pages/AllUsersList/AllUsersList';
 import BalanceSheetList from './modules/Admin/Pages/BalanceSheet/BalanceSheetList';
+import UserDashboard from './modules/User/Pages/UserDashboard';
 
 function App() {
   return (
@@ -35,9 +36,10 @@ function App() {
 
 
                 <Route path="/user" element={<UserBaseLayout />}>
-                <Route path='applyleave' element={<ApplyLeave />}></Route>
-                <Route path='profile' element={<Profile />}></Route>
-                <Route path='calander' element={<EventCalendar/>}></Route>
+                <Route index element={<UserDashboard />}/>
+                <Route path='applyleave' element={<ApplyLeave />}/>
+                <Route path='profile' element={<Profile />}/>
+                <Route path='calander' element={<EventCalendar/>}/>
                 </Route>
 
       </Routes>

@@ -6,7 +6,7 @@ export const Container = styled.div`
   gap: 2rem;
   padding: 2rem;
   font-family: Arial, sans-serif;
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 `;
 
@@ -78,6 +78,7 @@ export const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+  width: 100%;
 `;
 
 export const StyledSelect = styled.select`
@@ -105,7 +106,7 @@ flex-direction: column;
   padding: 1.5rem;
   background: #f9fdfc;
   border-radius: 8px;
-  width: 55%;
+  width: 100%;
   gap: 2rem;
   // margin: auto;
 `;
@@ -115,6 +116,12 @@ export const Row = styled.div`
   justify-content: space-between;
   // flex-wrap: wrap;
   gap: 1.2rem;
+`;
+
+export const ReasonAnddescription = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 export const Select = styled.select`

@@ -57,3 +57,20 @@ export const getAllUsers = async () => {
   }
   
 }
+
+export const getUserById = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axiosConfig.get("api/user/user-id", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("userrrrr", res.data)
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+}

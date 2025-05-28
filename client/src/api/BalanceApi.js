@@ -14,3 +14,9 @@ export const getAllBalances = async () => {
         throw error.response?.data || error;
     }
 }
+
+export const getLeaveBalances = async (employeeId) => {
+  const response = await axiosConfig.get(`/api/balance/get-balance/${employeeId}`);
+  console.log("Fetched Leave Balances:", response.data);
+  return response.data?.data; 
+};
