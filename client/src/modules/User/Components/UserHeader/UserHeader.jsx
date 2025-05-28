@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import {
   HeaderContainer,
@@ -10,7 +10,7 @@ import {
   DropdownMenu
 } from "./UserHeader.styles";
 
-import { getUserById } from "../../../../api/AuthApi"; // Adjust path if needed
+import { getUserById, logout } from "../../../../api/AuthApi"; // Adjust path if needed
 
 const SidebarItem = [
   { id: 1, name: "Dashboard", path: "/user" },
@@ -25,14 +25,24 @@ const UserHeader = () => {
   const [Title, setTitle] = useState(""); // Store user full name
   const dropdownRef = useRef(null);
 
+  const navigate = useNavigate();
+
   const toggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
   };
 
-  const handleLogout = () => {
-    localStorage.clear(); // Optionally clear all data
-    window.location.href = "/";
-  };
+const handleLogout = async () => {
+  try {
+    const response = await logout(); // response is { message: 'Logout successful' }
+    console.log(response.message); // ✅ correct usage
+
+    localStorage.clear(); 
+    alert("Logged out successfully");
+    navigate("/"); 
+  } catch (err) {
+    console.error("Logout failed:", err.message || err);
+  }
+};
 
   // Fetch user name on component mount
   useEffect(() => {

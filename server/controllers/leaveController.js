@@ -186,8 +186,10 @@ export const getLeaveRequestsWithBalances = async (req, res) => {
 
     const enrichedRequests = leaveRequests.map(req => {
       const empId = req.employee?._id?.toString();
+      const employeeName = req.employee ? `${req.employee.Firstname} ${req.employee.Lastname}` : "N/A";
       return {
         ...req._doc,
+        employeeName,
         leaveBalances: balanceMap[empId] || {}
       };
     });
@@ -295,7 +297,7 @@ export const getAllLeaveBalances = async (req, res) => {
   try {
     const balances = await LeaveBalance
       .find()
-      .populate("employee", "name email") 
+      .populate("employee", "Firstname Lastname email department") 
       .populate("leaveType", "name advanceNoticeDays autoApproval");
 
     const employeeBalances = {};
@@ -315,7 +317,8 @@ export const getAllLeaveBalances = async (req, res) => {
         employeeBalances[empId] = {
           employee: {
             id: empId,
-            name: balance.employee.name,
+            name: balance.employee?.Firstname + " " + balance.employee?.Lastname,
+            department: balance.employee?.department,
             email: balance.employee.email
           },
           totalRemaining: 0,

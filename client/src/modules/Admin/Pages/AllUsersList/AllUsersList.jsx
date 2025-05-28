@@ -3,8 +3,6 @@ import {
   Container,
   HeaderRow,
   Title,
-  SortByContainer,
-  SortLabel,
   TableWrapper,
   StyledTable,
   TableHead,
@@ -12,7 +10,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  ActionsContainer,
   DepartmentFilter,
   SecondHero,
   SearchWrapper,
@@ -22,9 +19,13 @@ import {
 import { CiSearch } from "react-icons/ci";
 import { Select } from "antd";
 import { getAllUsers } from "../../../../api/AuthApi";
+import { Pagination } from "antd";
+
 
 // Simple modal component to show image popup
 function ImageModal({ isOpen, imageUrl, onClose }) {
+
+
   if (!isOpen) return null;
   return (
     <div
@@ -127,13 +128,22 @@ const departmentOptions = [
     setModalImageUrl(null);
   };
 
+    useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [currentPage]);
+
   // Fetch data once on mount
 useEffect(() => {
   const fetchUsers = async () => {
     try {
       const response = await getAllUsers();
       console.log("Fetched Users Data:", response);
-      setData(Array.isArray(response) ? response : response.data || []);
+
+      const users = Array.isArray(response) ? response : response.data?.data || [];
+      const employeesOnly = users.filter((user) => user.role === "employee");
+
+      console.log("Employees Only:", employeesOnly);
+      setData(employeesOnly);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -254,25 +264,17 @@ useEffect(() => {
           </StyledTable>
         </TableWrapper>
 
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p>
-            Page {currentPage} of {totalPages}
-          </p>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages || totalPages === 0}
-          >
-            Next
-          </button>
-        </div>
+
+<div style={{ margin: "1rem 0", display: "flex", justifyContent: "flex-end"  }}>
+  <Pagination
+    current={currentPage}
+    pageSize={ITEMS_PER_PAGE}
+    total={totalEntries}
+    onChange={(page) => setCurrentPage(page)}
+    showSizeChanger={false}
+  />
+</div>
+
       </Container>
 
       {/* Image Modal */}

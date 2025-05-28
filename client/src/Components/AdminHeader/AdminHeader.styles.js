@@ -76,3 +76,14 @@ export const UserEmail = styled.div`
   color: #555; /* Formerly theme.colors.test */
   margin-top: 4px;
 `;
+
+export const LogoutIconWrapper = styled.div`
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+  margin-left: 20px;
+
+  &:hover {
+    color: #e53935;
+  }
+`;

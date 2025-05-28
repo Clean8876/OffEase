@@ -1,21 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalTitle,
-  CloseButton,
   ModalBody,
   Row,
   Label,
   Value,
   ActionButtons,
   ActionButton,
+  LeaveContainer,
+  CurrectDate,
+  TodayDate,
+  Heading,
+  MainBody,
+  Dates,
+  Status,
+  Name,
+  BackTitle,
+  BackIcon,
 } from "./LeaveApprovalModal.styles";
-import { updateStatus } from "../../../../api/LeaveRequestApi";
+import { useParams } from "react-router-dom";
+import { getAllLeaves, updateStatus } from "../../../../api/LeaveRequestApi";
+import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
 
-export default function LeaveApprovalModal({ leave, onClose, onUpdateStatus }) {
-  if (!leave) return null; // Ensure we don't render the modal without data
+export default function LeaveApprovalModal() {
+  const { id } = useParams();
+  const [leave, setLeave] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchLeave = async () => {
+      try {
+        const allLeaves = await getAllLeaves();
+        const selectedLeave = allLeaves.find((leave) => leave._id === id);
+        setLeave(selectedLeave || null);
+      } catch (error) {
+        console.error("Error fetching leave:", error);
+      }
+    };
+
+    if (id) {
+      fetchLeave();
+    }
+  }, [id]);
 
   const handleStatusUpdate = async (newStatus) => {
     try {
@@ -24,83 +51,146 @@ export default function LeaveApprovalModal({ leave, onClose, onUpdateStatus }) {
         status: newStatus,
       });
 
-      // Optionally notify parent or refresh list
-      if (onUpdateStatus) {
-        onUpdateStatus(leave._id, newStatus);
-      }
+      setLeave((prev) => ({
+        ...prev,
+        status: newStatus,
+      }));
 
-      onClose();
+      // Optional: close modal or notify parent
     } catch (error) {
       console.error("Failed to update status:", error);
-      // Optionally show error to user
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  if (!leave) return null;
+
+  const calculateLeaveDays = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffInMs = endDate - startDate;
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24) + 1; // Include both start & end
+    return diffInDays;
+  };
+
+  const leaveDays = calculateLeaveDays(leave.startDate, leave.endDate);
+  const leaveType = leave.leaveType?.name?.toLowerCase();
+
+  let isOverLimit = false;
+  if (leaveType === "sick" && leaveDays > 2) {
+    isOverLimit = true;
+  }
+  if (leaveType === "casual" && leaveDays > 4) {
+    isOverLimit = true;
+  }
+
+  
+
   return (
-    <ModalOverlay>
-      <ModalContent>
-        <ModalHeader>
-          <ModalTitle>Leave Application Details</ModalTitle>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
-        </ModalHeader>
-        <ModalBody>
+    <ModalBody>
+      <BackTitle>
+        <BackIcon onClick={() => navigate(-1)}>
+          <IoArrowBack />
+        </BackIcon>
+        <ModalTitle>Leave Request Details</ModalTitle>
+      </BackTitle>
+
+      <LeaveContainer>
+        <CurrectDate>
+          <TodayDate>{formatDate(leave.createdAt)}</TodayDate>
+        </CurrectDate>
+        <Heading>
+          <Name>
+            <Row>
+              {/* <Label>Full Name:</Label> */}
+              <Value style={{ fontSize: "16px", fontWeight: "bold" }}>
+                {leave.employee?.Firstname ?? "N/A"}{" "}
+                {leave.employee?.Lastname ?? ""}
+              </Value>
+            </Row>
+
+            <Row>
+              <Label>Leave Status:</Label>
+              <Status>{leave.status ?? "N/A"}</Status>
+            </Row>
+          </Name>
           <Row>
-            <Label>Full Name:</Label>
-            <Value>
-              {leave.employee?.Firstname} {leave.employee?.Lastname}
-            </Value>
+            {/* <Label>Email:</Label> */}
+            <Value>{leave.employee?.email ?? "N/A"}</Value>
           </Row>
           <Row>
-            <Label>Email:</Label>
-            <Value>{leave.employee?.email}</Value>
+            {/* <Label>Department:</Label> */}
+            <Value>{leave.employee?.department ?? "N/A"}</Value>
           </Row>
-          <Row>
-            <Label>Department:</Label>
-            <Value>{leave.employee?.department}</Value>
-          </Row>
-          <Row>
-            <Label>Leave Type:</Label>
-            <Value>{leave.leaveType?.name}</Value>
-          </Row>
+        </Heading>
+
+        <Dates>
           <Row>
             <Label>Start Date:</Label>
-            <Value>{new Date(leave.startDate).toLocaleDateString()}</Value>
+            <Value>{formatDate(leave.startDate)}</Value>
           </Row>
           <Row>
             <Label>End Date:</Label>
-            <Value>{new Date(leave.endDate).toLocaleDateString()}</Value>
+            <Value>{formatDate(leave.endDate)}</Value>
           </Row>
           <Row>
-            <Label>Reason:</Label>
-            <Value>{leave.reason}</Value>
+            <Label>No of Days:</Label>
+            <Value>{leaveDays}</Value>
           </Row>
+        </Dates>
+
+        <MainBody>
           <Row>
-            <Label>Status:</Label>
-            <Value>{leave.status}</Value>
-          </Row>
-          <Row>
-            <Label>Leave Balances:</Label>
-            <Value>
-              Casual - Total: {leave.leaveBalances?.casual?.total || 0},
-              Remaining: {leave.leaveBalances?.casual?.remaining || 0}
-              <br />
-              Sick - Total: {leave.leaveBalances?.sick?.total || 0}, Remaining:{" "}
-              {leave.leaveBalances?.sick?.remaining || 0}
-            </Value>
+            <Label>Leave Type:</Label>
+            <Value>{leave.leaveType?.name ?? "N/A"}</Value>
           </Row>
 
-          {leave.status?.toLowerCase() === "pending" && (
-            <ActionButtons>
-              <ActionButton approve onClick={() => handleStatusUpdate("approved")}>
-                Approve
-              </ActionButton>
-              <ActionButton reject onClick={() => handleStatusUpdate("rejected")}>
-                Reject
-              </ActionButton>
-            </ActionButtons>
-          )}
-        </ModalBody>
-      </ModalContent>
-    </ModalOverlay>
+          <Row>
+            <Label>Reason:</Label>
+            <Value>{leave.reason ?? "N/A"}</Value>
+          </Row>
+
+          <Row>
+            <Label>Description</Label>
+            <Value>{leave.description ?? "N/A"}</Value>
+          </Row>
+        </MainBody>
+
+        <Row>
+          <Label>Remaining Casual Leaves : </Label>
+          <Value>{leave.leaveBalances?.casual?.remaining ?? 0}</Value>
+        </Row>
+
+        <Row>
+          <Label>Remaining Sick Leaves : </Label>
+          <Value>{leave.leaveBalances?.sick?.remaining ?? 0}</Value>
+        </Row>
+
+        {leave.status?.toLowerCase() === "pending" && (
+          <ActionButtons>
+            <ActionButton
+              approve
+              disabled={isOverLimit}
+              title={isOverLimit ? "Leave duration exceeds allowed limit" : ""}
+              onClick={() => handleStatusUpdate("approved")}
+            >
+              Approve
+            </ActionButton>
+
+            <ActionButton reject onClick={() => handleStatusUpdate("rejected")}>
+              Reject
+            </ActionButton>
+          </ActionButtons>
+        )}
+      </LeaveContainer>
+    </ModalBody>
   );
 }

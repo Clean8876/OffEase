@@ -74,3 +74,18 @@ export const getUserById = async () => {
     throw error.response?.data || error;
   }
 }
+
+export const logout = async () => {
+  try {
+    const res = await axiosConfig.get("/api/user/logout", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, // include this if using cookies
+    });
+    return res.data; // returns { message: 'Logout successful' }
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
