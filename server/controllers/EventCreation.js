@@ -3,23 +3,25 @@ import EventData from "../models/EventSchmea.js";
 
 
 export const createEvent = async (req, res) =>{
-    try {
-        const { role, team, id: userId } = req.user;
-        const { title, description, date, type, targetTeams } = req.body;
-         // Validation
-        const validationErrors = [];
-        if (!title||title.trim().length === 0) {
-            validationErrors.push({ message: "Title is required" });
-        }
-            if (!date) {
-            validationErrors.push('Date is required');
-            } else {
-            const eventDate = new Date(date);
-            if (isNaN(eventDate.getTime())) {
-                validationErrors.push('Invalid date format');
-            }
-           
-            }
+  try {
+      const { role, team, id: userId } = req.user;
+      const { title, description, date, type, targetTeams } = req.body;
+        // Validation
+      const validationErrors = [];
+      if (!title||title.trim().length === 0) {
+          validationErrors.push({ message: "Title is required" });
+      }
+          if (!date) {
+          validationErrors.push('Date is required');
+          } else {
+          const eventDate = new Date(date);
+          if (isNaN(eventDate.getTime())) {
+              validationErrors.push('Invalid date format');
+          }         
+          else if (eventDate.getDay() === 0) {
+          validationErrors.push('Events cannot be scheduled on Sundays');
+          }
+       }
          if (!type || !['company_event', 'team_event'].includes(type)) {
       validationErrors.push('Type must be either "company_event" or "team_event"');
     }
