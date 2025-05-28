@@ -71,10 +71,18 @@ export const getMyLeaveBalances = async (req, res) => {
   }
 };
 
-// EMPLOYEE: submit a leave request
+/// EMPLOYEE: submit a leave request
 export const submitLeaveRequest = async (req, res) => {
   try {
-    const { leaveTypeId, startDate, endDate, reason, description } = req.body;
+    let { leaveTypeId, leaveTypeName, startDate, endDate, reason, description } = req.body;
+
+    if (!leaveTypeId && leaveTypeName) {
+      const leaveTypeDoc = await LeaveType.findOne({ name: leaveTypeName.toLowerCase() });
+      if (!leaveTypeDoc) return res.status(400).json({ message: "Invalid leave type name" });
+      leaveTypeId = leaveTypeDoc._id;
+    }
+
+    if (!leaveTypeId) return res.status(400).json({ message: "leaveTypeId or leaveTypeName is required" });
 
     const leaveType = await LeaveType.findById(leaveTypeId);
     if (!leaveType) return res.status(400).json({ message: "Invalid leaveTypeId" });
@@ -86,7 +94,20 @@ export const submitLeaveRequest = async (req, res) => {
       return res.status(400).json({ message: `Must apply ${leaveType.advanceNoticeDays} days in advance for ${leaveType.name}` });
     }
 
-    const requestedDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+        // const requestedDays = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+
+    const getWorkingDays = (startDate, endDate) => {
+      let count = 0;
+      let current = new Date(startDate);
+      while (current <= new Date(endDate)) {
+        if (current.getDay() !== 0) count++;
+        current.setDate(current.getDate() + 1);
+      }
+      return count;
+    };
+
+    const requestedDays = getWorkingDays(startDate, endDate);
+
     const balance = await LeaveBalance.findOne({ employee: req.user.id, leaveType: leaveTypeId });
 
     if (!balance || balance.remainingDays < requestedDays) {
