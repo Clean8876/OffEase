@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   EventsContainer,
   EventsTitle,
@@ -16,6 +16,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
+import { getAllUsers } from '../../../../api/AuthApi';
 
 // Static sample data
 const staticEvents = [
@@ -24,35 +25,61 @@ const staticEvents = [
   'Project deadline submission at 5 PM',
 ];
 
-const staticLeaveData = [
-  { department: 'HR', leaves: 3 },
-  { department: 'Sales', leaves: 5 },
-  { department: 'Tech', leaves: 2 },
-  { department: 'Marketing', leaves: 4 },
-];
-
 const EventsAndGraph = () => {
+  const [users, setUsers] = useState([]);
+  const [employeeChartData, setEmployeeChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getAllUsers();
+        console.log("Fetched Users Data:", response);
+        const users = Array.isArray(response) ? response : response.data?.data || [];
+        setUsers(users);
+
+        // Process the department data
+        const departmentCount = {};
+        users.forEach(user => {
+          if (user.department) {
+            departmentCount[user.department] = (departmentCount[user.department] || 0) + 1;
+          }
+        });
+
+        const chartData = Object.entries(departmentCount).map(([dept, count]) => ({
+          department: dept,
+          employees: count,
+        }));
+
+        setEmployeeChartData(chartData);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   return (
     <EventsContainer>
       <EventStat>
-      <EventsTitle>Today's Events</EventsTitle>
-      {staticEvents.map((event, idx) => (
-        <EventItem key={idx}>{event}</EventItem>
-      ))}
+        <EventsTitle>Today's Events</EventsTitle>
+        {staticEvents.map((event, idx) => (
+          <EventItem key={idx}>{event}</EventItem>
+        ))}
       </EventStat>
 
       <GraphContainer>
-        <h3>Leave Management Overview</h3>
+        <h3>No of Employees per Department</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
-            data={staticLeaveData}
+            data={employeeChartData}
             margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="department" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="leaves" fill="rgb(238, 211, 236)" radius={[10, 10, 0, 0]} />
+            <Bar dataKey="employees" fill="rgb(238, 211, 236)" radius={[10, 10, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </GraphContainer>

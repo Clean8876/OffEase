@@ -20,10 +20,9 @@ import {
   SearchInput,
 } from "./BalanceSheetList.styles";
 import { CiSearch } from "react-icons/ci";
-import { IoEyeOutline } from "react-icons/io5";
 import { Select } from "antd";
 import { getAllBalances } from "../../../../api/BalanceApi";
-import LeaveApprovalModal from "../../Components/LeaveApprovalModal/LeaveApprovalModal";
+import { Pagination } from "antd";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,21 +35,6 @@ export default function BalanceSheetList() {
   const [totalEntries, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLeave, setSelectedLeave] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Format date helper, keep it in case you want timestamps somewhere
-  const formatToIST = (isoString) => {
-    if (!isoString) return "-";
-    const date = new Date(isoString);
-    return new Intl.DateTimeFormat("en-IN", {
-      timeZone: "Asia/Kolkata",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date);
-  };
-
   // Unique department options from employee data in balance sheets
   const departmentOptions = [
     { value: "all", label: "All Departments" },
@@ -63,24 +47,17 @@ export default function BalanceSheetList() {
     ).map((dept) => ({ value: dept, label: dept })),
   ];
 
-  // View modal open
-  const handleView = (leave) => {
-    setSelectedLeave(leave);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [currentPage]);
 
-  // Modal close
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedLeave(null);
-  };
 
   useEffect(() => {
     const fetchLeaveData = async () => {
       try {
         const response = await getAllBalances();
-        console.log("Fetched Balance Sheet Data:", response.data);
-        setData(response.data || []);
+        console.log("Fetched Balance Sheet Data:", response);
+        setData(response || []);
       } catch (error) {
         console.error("Error fetching leave data:", error);
       }
@@ -100,7 +77,7 @@ export default function BalanceSheetList() {
 
     if (searchText) {
       processedData = processedData.filter((item) =>
-        (item.employee?.Firstname + " " + item.employee?.Lastname)
+        (item.employee?.name)
           .toLowerCase()
           .includes(searchText.toLowerCase())
       );
@@ -174,35 +151,26 @@ export default function BalanceSheetList() {
 
                   {/* Rendering .remaining property safely */}
                   <TableCell>
-                    {item.totalRemainingLeaves ?? "-"}
+                    {item.totalRemaining ?? "-"}
                   </TableCell>
-                  <TableCell>{item.remainingLeaves?.sick ?? "-"}</TableCell>
-                  <TableCell>{item.remainingLeaves?.casual ?? "-"}</TableCell>
+                  <TableCell>{item.leaveDetails.sick?.remainingDays  ?? "-"}</TableCell>
+                  <TableCell>{item.leaveDetails.casual?.remainingDays ?? "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </StyledTable>
         </TableWrapper>
 
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p>
-            Page {currentPage} of {totalPages}
-          </p>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
+<div style={{ margin: "1rem 0", display: "flex", justifyContent: "flex-end" }}>
+  <Pagination
+    current={currentPage}
+    pageSize={ITEMS_PER_PAGE}
+    total={totalEntries}
+    onChange={(page) => setCurrentPage(page)}
+    showSizeChanger={false}
+  />
+</div>
+
       </Container>
     </>
   );

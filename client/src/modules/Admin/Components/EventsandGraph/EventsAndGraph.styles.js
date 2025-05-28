@@ -31,6 +31,10 @@ width: 50%;
   h3 {
     margin-bottom: 1rem;
     color: #333;
+    margin-left: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
   }
 `;
 

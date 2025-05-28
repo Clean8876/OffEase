@@ -24,7 +24,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import { Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getAllLeaves } from "../../../../api/LeaveRequestApi";
-import LeaveApprovalModal from "../../Components/LeaveApprovalModal/LeaveApprovalModal";
+import { Pagination } from "antd";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -39,8 +39,6 @@ export default function LeaveManagement() {
   const [totalEntries, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLeave, setSelectedLeave] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatToIST = (isoString) => {
     const date = new Date(isoString);
@@ -59,15 +57,15 @@ export default function LeaveManagement() {
     ).map((dept) => ({ value: dept, label: dept })),
   ];
 
-  const handleView = (leave) => {
-    setSelectedLeave(leave);
-    setIsModalOpen(true);
-  };
+  // Change handleView to navigate to leave details page
+const handleView = (leave) => {
+  navigate(`/admin/leave-management/leave-details/${leave._id}`);
+};
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedLeave(null);
-  };
+useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [currentPage]);
+
 
   useEffect(() => {
     const fetchLeaveData = async () => {
@@ -117,133 +115,109 @@ export default function LeaveManagement() {
     setCurrentItems(items);
   }, [data, sortOption, searchText, selectedDepartment, currentPage]);
 
-  const handleUpdateStatus = (leaveId, newStatus) => {
-    const updatedData = data.map((item) =>
-      item._id === leaveId ? { ...item, status: newStatus } : item
-    );
-    setData(updatedData);
-    setIsModalOpen(false);
-  };
-
   return (
-    <>
-      <Container>
-        <HeaderRow>
-          <Title>
-            Leave Approval List{" "}
-            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
-              ({currentItems.length}/{totalEntries})
-            </span>
-          </Title>
-          <SortByContainer>
-            <SortLabel>Sort by:</SortLabel>
-            <Select
-              defaultValue={sortOption}
-              style={{ width: 120 }}
-              onChange={(value) => {
-                setSortOption(value);
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: "all", label: "All" },
-                { value: "casual", label: "Casual" },
-                { value: "sick", label: "Sick" },
-              ]}
-            />
-          </SortByContainer>
-        </HeaderRow>
+    <Container>
+      <HeaderRow>
+        <Title>
+          Leave Approval List{" "}
+          <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+            ({currentItems.length}/{totalEntries})
+          </span>
+        </Title>
+        <SortByContainer>
+          <SortLabel>Sort by:</SortLabel>
+          <Select
+            defaultValue={sortOption}
+            style={{ width: 120 }}
+            onChange={(value) => {
+              setSortOption(value);
+              setCurrentPage(1);
+            }}
+            options={[
+              { value: "all", label: "All" },
+              { value: "casual", label: "Casual" },
+              { value: "sick", label: "Sick" },
+            ]}
+          />
+        </SortByContainer>
+      </HeaderRow>
 
-        <SecondHero>
-          <SearchWrapper>
-            <SearchIcon>
-              <CiSearch size={18} />
-            </SearchIcon>
-            <SearchInput
-              placeholder="Search by name"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </SearchWrapper>
-          <DepartmentFilter>
-            <Select
-              style={{ width: 180 }}
-              value={selectedDepartment}
-              onChange={(value) => {
-                setSelectedDepartment(value);
-                setCurrentPage(1);
-              }}
-              options={departmentOptions}
-            />
-          </DepartmentFilter>
-        </SecondHero>
+      <SecondHero>
+        <SearchWrapper>
+          <SearchIcon>
+            <CiSearch size={18} />
+          </SearchIcon>
+          <SearchInput
+            placeholder="Search by name"
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </SearchWrapper>
+        <DepartmentFilter>
+          <Select
+            style={{ width: 180 }}
+            value={selectedDepartment}
+            onChange={(value) => {
+              setSelectedDepartment(value);
+              setCurrentPage(1);
+            }}
+            options={departmentOptions}
+          />
+        </DepartmentFilter>
+      </SecondHero>
 
-        <TableWrapper>
-          <StyledTable>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Full Name</TableHeader>
-                <TableHeader>Department</TableHeader>
-                <TableHeader>Leave Type</TableHeader>
-                <TableHeader>Start Date</TableHeader>
-                <TableHeader>End Date</TableHeader>
-                <TableHeader>Reason</TableHeader>
-                <TableHeader>Actions</TableHeader>
+      <TableWrapper>
+        <StyledTable>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Full Name</TableHeader>
+              <TableHeader>Department</TableHeader>
+              <TableHeader>Leave Type</TableHeader>
+              <TableHeader>Start Date</TableHeader>
+              <TableHeader>End Date</TableHeader>
+              <TableHeader>Reason</TableHeader>
+              <TableHeader>Actions</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {currentItems.map((item) => (
+              <TableRow key={item._id || Math.random()}>
+                <TableCell>
+                  {item.employee?.Firstname || "N/A"} {item.employee?.Lastname || ""}
+                </TableCell>
+                <TableCell>{item.employee?.department || "N/A"}</TableCell>
+                <TableCell>{item.leaveType?.name || "N/A"}</TableCell>
+                <TableCell>{item.startDate ? formatToIST(item.startDate) : "N/A"}</TableCell>
+                <TableCell>{item.endDate ? formatToIST(item.endDate) : "N/A"}</TableCell>
+                <TableCell>{item.reason || "N/A"}</TableCell>
+                <TableCell>
+                  <ActionsContainer>
+                    <IoEyeOutline
+                      size={20}
+                      title="View"
+                      onClick={() => handleView(item)}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </ActionsContainer>
+                </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentItems.map((item) => (
-                <TableRow key={item._id || Math.random()}>
-                  <TableCell>
-                    {item.employee?.Firstname || "N/A"} {item.employee?.Lastname || ""}
-                  </TableCell>
-                  <TableCell>{item.employee?.department || "N/A"}</TableCell>
-                  <TableCell>{item.leaveType?.name || "N/A"}</TableCell>
-                  <TableCell>{item.startDate ? formatToIST(item.startDate) : "N/A"}</TableCell>
-                  <TableCell>{item.endDate ? formatToIST(item.endDate) : "N/A"}</TableCell>
-                  <TableCell>{item.reason || "N/A"}</TableCell>
-                  <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline
-                        size={20}
-                        title="View"
-                        onClick={() => handleView(item)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </ActionsContainer>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </StyledTable>
-        </TableWrapper>
+            ))}
+          </TableBody>
+        </StyledTable>
+      </TableWrapper>
 
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p>Page {currentPage} of {totalPages}</p>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
-      </Container>
-
-      {isModalOpen && selectedLeave && (
-        <LeaveApprovalModal
-          leave={selectedLeave}
-          onClose={handleCloseModal}
-          onUpdateStatus={handleUpdateStatus}
-        />
-      )}
-    </>
+<div style={{ margin: "1rem 0", display: "flex", justifyContent: "flex-end" }}>
+  <Pagination
+    current={currentPage}
+    pageSize={ITEMS_PER_PAGE}
+    total={totalEntries}
+    onChange={(page) => setCurrentPage(page)}
+    showSizeChanger={false}
+  />
+</div>
+    </Container>
   );
 }

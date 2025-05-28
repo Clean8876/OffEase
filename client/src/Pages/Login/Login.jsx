@@ -14,7 +14,7 @@ import {
   Circle,
   SubCircle
 } from './Login.styles';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import LoginImage from '../../assets/Login.gif';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../../api/AuthApi';
@@ -22,6 +22,7 @@ import { login } from '../../api/AuthApi';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -76,16 +77,27 @@ const Login = () => {
                 />
               </Icon>
 
-              <Icon>
-                <FaLock style={{ marginRight: '0.75rem', color: '#666' }} />
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </Icon>
+<Icon>
+  <FaLock style={{ marginRight: '0.75rem', color: '#666' }} />
+  <Input
+    type={showPassword ? 'text' : 'password'}
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
+  {showPassword ? (
+    <FaEye
+      style={{ marginLeft: '0.75rem', cursor: 'pointer', color: '#666' }}
+      onClick={() => setShowPassword(false)}
+    />
+  ) : (
+    <FaEyeSlash
+      style={{ marginLeft: '0.75rem', cursor: 'pointer', color: '#666' }}
+      onClick={() => setShowPassword(true)}
+    />
+  )}
+</Icon>
 
               <LinkText>
                 <Link to="/forgot-password" className="forgot-password-link">
