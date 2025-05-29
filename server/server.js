@@ -21,7 +21,7 @@ const port = process.env.PORT
 
 app.use(cookieParser())
 app.use(cors({
-    origin: 'https://offeasze-r3mx.vercel.app/',
+    origin: 'https://offease-client.vercel.app/',
     credentials: true, 
   }));
 
