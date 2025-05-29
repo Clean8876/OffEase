@@ -14,6 +14,15 @@ export const Wrapper = styled.div`
   border-radius: 12px;
 //   padding: 2rem;
   width: 100%;
+
+  @media (max-width: 576px) {
+    width: 80%;
+  }
+
+  @media (max-width: 400px) {
+    width: 90%;
+    
+  }
 `;
 
 export const Left = styled.div`
@@ -25,6 +34,15 @@ export const Left = styled.div`
   .login-image {
     width: 100%;
     height: 100vh;
+  }
+
+  @media (max-width: 1024px) {
+    width: 40%;
+    
+  }
+
+  @media (max-width: 576px) {
+    display: none;
   }
 `;
 
@@ -38,6 +56,16 @@ export const Circle = styled.div`
     left: 60%;
     transform: translate(-50%, -50%);
     z-index: 0;
+
+    @media (max-width: 1320px) {
+        width:300px;
+        height: 300px;
+    }
+
+    @media (max-width: 576px) {
+        left: 20%;
+      
+    }
 `;
 
 export const SubCircle = styled.div`
@@ -50,6 +78,18 @@ export const SubCircle = styled.div`
     right: -10%;
     transform: translate(-50%, -50%);
     z-index: 0;
+
+    @media (max-width: 1320px) {
+        width:300px;
+        height: 300px;
+        right: -16%;
+    }
+
+    @media (max-width: 576px) {
+        right: -30%;
+        display:none;
+      
+    }
 `
 
 export const Right = styled.div`
@@ -57,7 +97,15 @@ export const Right = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem 2rem;
+  padding: 2rem 2rem;
+
+  @media (max-width: 1024px) {
+    width: 60%;
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
 `;
 
 export const Light = styled.div`
@@ -67,6 +115,15 @@ export const Light = styled.div`
     // border: 1px solid #ccc;
     // box-shadow: 1px 1px 4px 4px rgba(0, 0, 0, 0.05);
     border-radius:10px;
+
+    @media (max-width: 1024px) {
+        width: 100%;
+    }
+
+    @media (max-width: 576px) {
+        width: 100%;
+        padding: 0rem;
+    }
 `;
 
 export const Title = styled.h2`

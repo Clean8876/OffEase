@@ -26,6 +26,12 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 `;
 
 export const Title = styled.h3`
@@ -222,7 +228,10 @@ export const SearchWrapper = styled.div`
 
   @media (max-width: 768px) {
     margin-bottom: 20px;
+    width: 100%;
   }
+
+
 `;
 
 export const SearchIcon = styled.div`
@@ -255,6 +264,11 @@ display: flex;
 flex-direction: row;
 // padding: 20px;
 width: 100%;
+
+@media (max-width: 576px) {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
 `;
 
 export const DepartmentFilter = styled.div`
@@ -262,5 +276,11 @@ export const DepartmentFilter = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 0 20px;
+
+  @media (max-width: 576px) {
+    margin: 0;
+    margin-bottom: 20px;
+
+  }
   
 `;

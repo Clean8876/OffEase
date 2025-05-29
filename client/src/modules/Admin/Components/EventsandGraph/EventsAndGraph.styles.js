@@ -9,6 +9,10 @@ flex-direction: row;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const EventsTitle = styled.h2`
@@ -35,6 +39,15 @@ width: 50%;
     font-size: 1.2rem;
     font-weight: bold;
     text-transform: uppercase;
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 
@@ -48,4 +61,8 @@ flex-direction: column;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   width: 50%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
