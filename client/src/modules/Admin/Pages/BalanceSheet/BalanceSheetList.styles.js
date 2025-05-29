@@ -251,22 +251,26 @@ export const SearchInput = styled.input`
 `;
 
 export const SecondHero = styled.div`
-display: flex;
-flex-direction: row;
-// padding: 20px;
-width: 100%;
-@media (max-width: 576px) {
-  flex-direction: column-reverse;
-}
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  @media (max-width: 576px) {
+    flex-direction: column-reverse;
+    
+
+  }
 `;
 
 export const DepartmentFilter = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 20px;
-  @media (max-width: 576px) {
+  margin: 0 10px;
+
+  @media (max-width: ${breakpoints.sm}) {
+    margin: 0;
+    width: 100%;
     align-items: flex-start;
   }
-  
 `;
