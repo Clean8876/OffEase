@@ -255,6 +255,9 @@ export const SecondHero = styled.div`
   flex-wrap: wrap;
   gap: 16px;
   width: 100%;
+
+@media (max-width: 768px) {
+
   @media (max-width: 576px) {
     flex-direction: column-reverse;
     

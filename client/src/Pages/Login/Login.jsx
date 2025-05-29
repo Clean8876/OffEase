@@ -51,11 +51,21 @@ try {
     } else {
       toast.warning('Unknown role. Cannot redirect.');
     }
-  }, 5000); // 2 seconds delay
+  }, 2000);
 } catch (error) {
   console.error('Login error:', error);
-  toast.error(error.message || 'Invalid credentials');
+
+  // Check for API response message
+  const message =
+    error.response?.data?.message || error.message || 'Invalid credentials';
+
+  if (message.toLowerCase().includes('not found')) {
+    toast.error('Account not found');
+  } else {
+    toast.error(message);
+  }
 }
+
   };
 
   return (

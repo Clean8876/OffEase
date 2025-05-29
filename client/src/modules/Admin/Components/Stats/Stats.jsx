@@ -7,7 +7,8 @@ import {
   StatIconWrapper,
   AddButtonWrapper,
   AddButton,
-  StatsContent
+  StatsContent,
+  Wrapper
 } from './Stats.styles';
 import Register from '../Register/Register';
 import { AiOutlineUser, AiOutlineCalendar } from 'react-icons/ai';
@@ -45,6 +46,7 @@ const Stats = () => {
   return (
     <>
       <StatsContainer>
+        <Wrapper>
         <StatBox>
           <StatIconWrapper>
             <AiOutlineUser size={32} />
@@ -64,6 +66,7 @@ const Stats = () => {
             <StatValue>{todaysLeaveCount}</StatValue>
           </StatsContent>
         </StatBox>
+        </Wrapper>
 
         <AddButtonWrapper>
           <AddButton onClick={() => setModalOpen(true)}>+ Add Employee</AddButton>

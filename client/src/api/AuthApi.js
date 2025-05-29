@@ -88,6 +88,19 @@ export const forgotPassword = async (data) => {
   }
 };
 
+export const resetPassword = async ({ token, password }) => {
+  try {
+    const res = await axiosConfig.post("/api/user/reset-password", { token, password }, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 export const logout = async () => {
   try {
     const res = await axiosConfig.get("/api/user/logout", {

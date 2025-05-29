@@ -2,15 +2,30 @@ import styled from 'styled-components';
 
 export const StatsContainer = styled.div`
   display: grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 2rem;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+  margin: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
 `;
 
 export const StatBox = styled.div`
-  flex: 1 1 200px;
+  // flex: 1 1 200px;
   padding: 1.5rem;
   background-color:rgb(255, 255, 255);
   border-radius: 10px;
@@ -20,6 +35,7 @@ export const StatBox = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+    width: 100%;
 
 `;
 
@@ -55,11 +71,11 @@ export const StatIconWrapper = styled.div`
 
 export const AddButtonWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 export const AddButton = styled.button`
-  padding: 0.6rem 1.2rem;
+  // padding: 0.6rem 1.2rem;
   font-size: 2rem;
   // background-color: #3e64ff;
   // color: white;
@@ -68,7 +84,7 @@ export const AddButton = styled.button`
   cursor: pointer;
   transition: background 0.2s;
     flex: 1 1 200px;
-  padding: 3rem;
+  padding: 2rem;
   background-color:rgb(255, 255, 255);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);

@@ -14,6 +14,7 @@ import BalanceSheetList from './modules/Admin/Pages/BalanceSheet/BalanceSheetLis
 import UserDashboard from './modules/User/Pages/UserDashboard';
 import LeaveApprovalModal from './modules/Admin/Components/LeaveApprovalModal/LeaveApprovalModal';
 import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
+import ResetPassword from './Pages/ResetPassword/ResetPassword';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route path="/admin" element={<BaseLayout />}>
           <Route index element={<AdminDashboard />} />
