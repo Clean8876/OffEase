@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosConfig = axios.create({
-  baseURL: 'http://localhost:5000', // adjust if needed
+  baseURL: 'https://offease-client.vercel.app', // adjust if needed
   headers: {
     'Content-Type': 'application/json',
   },
