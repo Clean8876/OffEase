@@ -137,8 +137,8 @@ export default function BalanceSheetList() {
                 <TableHeader>Full Name</TableHeader>
                 <TableHeader>Department</TableHeader>
                 <TableHeader>Remaining Leaves</TableHeader>
-                <TableHeader>Sick Leaves</TableHeader>
-                <TableHeader>Casual Leaves</TableHeader>
+                <TableHeader>Remaining Sick Leaves</TableHeader>
+                <TableHeader>Remaining Casual Leaves</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>

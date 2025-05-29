@@ -15,7 +15,6 @@ import { getUserById, logout } from "../../../../api/AuthApi"; // Adjust path if
 const SidebarItem = [
   { id: 1, name: "Dashboard", path: "/user" },
   { id: 2, name: "Apply Leave", path: "/user/applyleave" },
-  { id: 3, name: "Balance Sheet", path: "/" },
   { id: 4, name: "Calender", path: "/user/calander" },
   { id: 5, name: "Profile", path: "/user/profile" },
 ];
