@@ -1,12 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "installCommand": "rm -rf node_modules package-lock.json && npm install"
-      }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

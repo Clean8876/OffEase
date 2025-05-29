@@ -21,7 +21,7 @@ const port = process.env.PORT
 
 app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://offeasze-r3mx.vercel.app/',
     credentials: true, 
   }));
 
