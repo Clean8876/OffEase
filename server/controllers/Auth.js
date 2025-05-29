@@ -160,8 +160,6 @@ export const getEmployeeById = async (req, res) => {
     }
 };
 
-
-
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -213,3 +211,38 @@ export const logout = (req, res) => {
       return res.status(500).json({ message: err.message });
     }
   };
+
+  export const deleteEmployeeById = async (req, res) => {
+  try {
+    const employeeId = req.params.id;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID is required in URL",
+      });
+    }
+
+    const employee = await EmployeeModel.findById(employeeId);
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found",
+      });
+    }
+
+    await EmployeeModel.findByIdAndDelete(employeeId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Employee deleted successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

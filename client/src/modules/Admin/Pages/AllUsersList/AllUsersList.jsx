@@ -15,12 +15,23 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
+  ModalOverlay,
+  ModalContent,
+  ModalTitle,
+  ModalButtons,
+  CancelButton,
+  DeleteButton,
 } from "./AllUsersList.styles";
 import { CiSearch } from "react-icons/ci";
 import { Select } from "antd";
 import { getAllUsers } from "../../../../api/AuthApi";
+import { deleteEmployeeById } from "../../../../api/AuthApi";
 import { Pagination } from "antd";
-
+import { Table } from "lucide-react";
+import { MdDeleteOutline } from "react-icons/md";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Simple modal component to show image popup
 function ImageModal({ isOpen, imageUrl, onClose }) {
@@ -93,6 +104,8 @@ export default function AllUsersList() {
   const [totalEntries, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
 
   // New state to manage image modal
   const [modalImageUrl, setModalImageUrl] = useState(null);
@@ -111,11 +124,11 @@ export default function AllUsersList() {
   };
 
   // Unique department options
-const departmentOptions = [
-  { value: "all", label: "All Departments" },
-  ...Array.from(new Set(data.map((item) => item.department).filter(Boolean)))
-    .map((dept) => ({ value: dept, label: dept })),
-];
+  const departmentOptions = [
+    { value: "all", label: "All Departments" },
+    ...Array.from(new Set(data.map((item) => item.department).filter(Boolean)))
+      .map((dept) => ({ value: dept, label: dept })),
+  ];
   // Open image modal
   const openImageModal = (imageUrl) => {
     setModalImageUrl(imageUrl);
@@ -128,28 +141,28 @@ const departmentOptions = [
     setModalImageUrl(null);
   };
 
-    useEffect(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, [currentPage]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   // Fetch data once on mount
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const response = await getAllUsers();
-      console.log("Fetched Users Data:", response);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getAllUsers();
+        console.log("Fetched Users Data:", response);
 
-      const users = Array.isArray(response) ? response : response.data?.data || [];
-      const employeesOnly = users.filter((user) => user.role === "employee");
+        const users = Array.isArray(response) ? response : response.data?.data || [];
+        const employeesOnly = users.filter((user) => user.role === "employee");
 
-      console.log("Employees Only:", employeesOnly);
-      setData(employeesOnly);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-  fetchUsers();
-}, []);
+        console.log("Employees Only:", employeesOnly);
+        setData(employeesOnly);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
 
   // Reset page to 1 when filter/search changes
@@ -158,33 +171,33 @@ useEffect(() => {
   }, [searchText, selectedDepartment]);
 
   // Filter and paginate data whenever dependencies change
-useEffect(() => {
-  let processedData = [...data];
+  useEffect(() => {
+    let processedData = [...data];
 
-  if (selectedDepartment !== "all") {
-    processedData = processedData.filter(
-      (item) => item.department === selectedDepartment
-    );
-  }
+    if (selectedDepartment !== "all") {
+      processedData = processedData.filter(
+        (item) => item.department === selectedDepartment
+      );
+    }
 
-  if (searchText.trim() !== "") {
-    processedData = processedData.filter((item) => {
-      const fullName = `${item.Firstname ?? ""} ${item.Lastname ?? ""}`.toLowerCase();
-      return fullName.includes(searchText.toLowerCase());
-    });
-  }
+    if (searchText.trim() !== "") {
+      processedData = processedData.filter((item) => {
+        const fullName = `${item.Firstname ?? ""} ${item.Lastname ?? ""}`.toLowerCase();
+        return fullName.includes(searchText.toLowerCase());
+      });
+    }
 
-  const total = processedData.length;
-  const pages = Math.ceil(total / ITEMS_PER_PAGE);
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  const items = processedData.slice(start, end);
+    const total = processedData.length;
+    const pages = Math.ceil(total / ITEMS_PER_PAGE);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const items = processedData.slice(start, end);
 
-  setFilteredData(processedData);
-  setTotalEntries(total);
-  setTotalPages(pages);
-  setCurrentItems(items);
-}, [data, searchText, selectedDepartment, currentPage]);
+    setFilteredData(processedData);
+    setTotalEntries(total);
+    setTotalPages(pages);
+    setCurrentItems(items);
+  }, [data, searchText, selectedDepartment, currentPage]);
 
 
   const handleImageClick = (e) => {
@@ -192,9 +205,35 @@ useEffect(() => {
     openImageModal(e.currentTarget.href); // Open modal with image URL
   }
 
+  const handleDeleteClick = (employeeId) => {
+    setEmployeeToDelete(employeeId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteEmployeeById(employeeToDelete);
+      const updatedData = data.filter((user) => user._id !== employeeToDelete);
+      setData(updatedData);
+      setShowDeleteModal(false);
+      setEmployeeToDelete(null);
+      toast.success("Employee deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+      alert("Error deleting employee.");
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setEmployeeToDelete(null);
+  };
+
   return (
     <>
       <Container>
+
+        <ToastContainer position="top-center" autoClose={3000} />
         <HeaderRow>
           <Title>
             All Users{" "}
@@ -234,6 +273,7 @@ useEffect(() => {
                 <TableHeader>Email</TableHeader>
                 <TableHeader>Date Of Birth</TableHeader>
                 <TableHeader>Profile Picture</TableHeader>
+                <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -243,21 +283,29 @@ useEffect(() => {
                     {item.Firstname} {item.Lastname}
                   </TableCell>
                   <TableCell>{item.department || "-"}</TableCell>
-                  <TableCell>{item.email || "-" }</TableCell>
+                  <TableCell>{item.email || "-"}</TableCell>
                   <TableCell>{formatToIST(item.dob)}</TableCell>
-<TableCell>
-    {      item.profilePictureUrl ? (
-        <a
-          href={item.profilePictureUrl}
-          onClick={handleImageClick}
-          style={{ textDecoration: "none", color: "#007bff" , cursor: "pointer" }} 
-        >
-            view
-        </a>
-      ) : (
-        "-"
-      )}
-</TableCell>
+                  <TableCell>
+                    {item.profilePictureUrl ? (
+                      <a
+                        href={item.profilePictureUrl}
+                        onClick={handleImageClick}
+                        style={{ textDecoration: "none", color: "#007bff", cursor: "pointer" }}
+                      >
+                        view
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+
+                  <TableCell
+                    style={{ cursor: "pointer", color: "red", fontSize: 20 }}
+                    onClick={() => handleDeleteClick(item._id)}
+                  >
+                    <MdDeleteOutline />
+                  </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -265,15 +313,15 @@ useEffect(() => {
         </TableWrapper>
 
 
-<div style={{ margin: "1rem 0", display: "flex", justifyContent: "flex-end"  }}>
-  <Pagination
-    current={currentPage}
-    pageSize={ITEMS_PER_PAGE}
-    total={totalEntries}
-    onChange={(page) => setCurrentPage(page)}
-    showSizeChanger={false}
-  />
-</div>
+        <div style={{ margin: "1rem 0", display: "flex", justifyContent: "flex-end" }}>
+          <Pagination
+            current={currentPage}
+            pageSize={ITEMS_PER_PAGE}
+            total={totalEntries}
+            onChange={(page) => setCurrentPage(page)}
+            showSizeChanger={false}
+          />
+        </div>
 
       </Container>
 
@@ -283,6 +331,20 @@ useEffect(() => {
         imageUrl={modalImageUrl}
         onClose={closeImageModal}
       />
+
+      {showDeleteModal && (
+        <ModalOverlay>
+          <ModalContent>
+            <ModalTitle>Are you sure you want to delete this employee?</ModalTitle>
+            {/* <p>Are you sure you want to delete this employee?</p> */}
+            <ModalButtons>
+              <CancelButton onClick={cancelDelete}>Cancel</CancelButton>
+              <DeleteButton onClick={confirmDelete}>Delete</DeleteButton>
+            </ModalButtons>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
     </>
   );
 }

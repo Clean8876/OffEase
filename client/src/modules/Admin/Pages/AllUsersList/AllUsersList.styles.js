@@ -254,3 +254,51 @@ export const DepartmentFilter = styled.div`
     align-items: flex-start;
   }
 `;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const ModalContent = styled.div`
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+`;
+
+export const ModalTitle = styled.h3`
+  margin-bottom: 12px;
+`;
+
+export const ModalButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
+export const CancelButton = styled.button`
+  padding: 8px 16px;
+  background: #ccc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
+export const DeleteButton = styled.button`
+  padding: 8px 16px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
