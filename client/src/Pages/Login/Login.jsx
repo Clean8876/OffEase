@@ -60,7 +60,7 @@ try {
 
   return (
     <Container>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-center" autoClose={3000} />
       <Wrapper>
         <Left>
           <img src={LoginImage} alt="login" className="login-image" />
