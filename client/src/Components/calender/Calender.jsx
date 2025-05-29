@@ -235,7 +235,7 @@ const renderCalendarDays = useMemo(() => {
           <h1 className="text-2xl font-semibold text-gray-800">Events Calendar</h1>
         </div>
         
-        <div className="flex items-center space-x-4">
+     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
           <button
             onClick={() => navigateMonth(-1)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -243,11 +243,11 @@ const renderCalendarDays = useMemo(() => {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          
-          <h2 className="text-xl font-medium text-gray-700 min-w-48 text-center">
+
+          <h2 className="text-lg sm:text-xl font-medium text-gray-700 text-center px-2">
             {monthYear}
           </h2>
-          
+
           <button
             onClick={() => navigateMonth(1)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
