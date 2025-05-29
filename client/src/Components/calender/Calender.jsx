@@ -235,7 +235,7 @@ const renderCalendarDays = useMemo(() => {
           <h1 className="text-2xl font-semibold text-gray-800">Events Calendar</h1>
         </div>
         
-     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+     <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:items-center sm:gap-3">
           <button
             onClick={() => navigateMonth(-1)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
