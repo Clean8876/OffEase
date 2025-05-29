@@ -75,6 +75,19 @@ export const getUserById = async () => {
   }
 }
 
+export const forgotPassword = async (data) => {
+  try {
+    const res = await axiosConfig.post("/api/user/forgot-password", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
 export const logout = async () => {
   try {
     const res = await axiosConfig.get("/api/user/logout", {

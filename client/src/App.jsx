@@ -13,12 +13,14 @@ import AllUsersList from './modules/Admin/Pages/AllUsersList/AllUsersList';
 import BalanceSheetList from './modules/Admin/Pages/BalanceSheet/BalanceSheetList';
 import UserDashboard from './modules/User/Pages/UserDashboard';
 import LeaveApprovalModal from './modules/Admin/Components/LeaveApprovalModal/LeaveApprovalModal';
+import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         <Route path="/admin" element={<BaseLayout />}>
           <Route index element={<AdminDashboard />} />
