@@ -32,6 +32,12 @@ export const HeaderRow = styled.div`
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 16px;
+  @media (max-width: ${breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+
 `;
 
 export const Title = styled.h3`
@@ -192,6 +198,10 @@ export const CreateButton = styled.button`
   justify-content: center;
   align-items: center;
   transition: 0.2s;
+  @media (max-width: ${breakpoints.sm}) {
+  width: 100%;
+}
+
 
   @media (max-width: ${breakpoints.md}) {
     font-size: 0.75rem;
@@ -233,6 +243,11 @@ export const SearchInput = styled.input`
   &:focus {
     outline: 2px solid #007bff;
   }
+    @media (max-width: ${breakpoints.sm}) {
+  font-size: 0.875rem;
+  padding: 8px 8px 8px 36px;
+}
+
 `;
 
 export const SecondHero = styled.div`
@@ -274,6 +289,11 @@ export const ModalContent = styled.div`
   border-radius: 8px;
   width: 300px;
   text-align: center;
+  @media (max-width: ${breakpoints.sm}) {
+  width: 90%;
+  padding: 16px;
+}
+
 `;
 
 export const ModalTitle = styled.h3`
