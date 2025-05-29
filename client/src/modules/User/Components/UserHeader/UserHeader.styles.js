@@ -37,13 +37,15 @@ height: 50px;
     padding: 0;
     display: flex;
     flex-direction: row;
-    gap: 5px;
+    gap: 30px;
+    margin-left: 50px;
     font-family: "Montserrat", sans-serif;
   }
 
   .menu-item {
     width: 100%;
     color: #1d1d1d;
+    gap: 10px;
 
     @media (max-width: 1360px) {
       width: ${({ isCollapsed }) => (isCollapsed ? "80%" : "100%")};
@@ -72,9 +74,10 @@ height: 50px;
     // }
 
     &.active {
-      background:rgba(229, 231, 235, 0.94); 
+      background:rgba(206, 55, 186, 0.28); 
       color: white;
       font-weight: bold;
+      padding: 12px 20px;
 
       /* Ensure icon turns white when active */
       .menu-link-icon {
@@ -102,7 +105,7 @@ height: 50px;
   }
 
   .menu-link.active .menu-link-icon {
-    color: black !important; 
+    color: white; 
   }
 
   .menu-link-text {
@@ -111,7 +114,7 @@ height: 50px;
   }
 
    .menu-link.active .menu-link-text {
-    color: black !important; 
+    color: white;
   }
 `;
 

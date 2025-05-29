@@ -12,6 +12,8 @@ import {
 import { FaDollarSign, FaMoneyBillAlt, FaCube, FaShoppingCart } from "react-icons/fa";
 import BarGraph from "../Components/BarGraph/BarGraph";
 import LeavesChart from "../Components/LeavesChart/LeavesChart";
+import { GrDocumentPerformance } from "react-icons/gr";
+import { GoProjectSymlink } from "react-icons/go";
 // import { Card } from "antd";
 // import LineGraph from "./Linegraph/Linegraph";
 // import BarGraph from "./Linegraph/Bargraph";
@@ -23,7 +25,7 @@ const UserDashboard = () => {
     <CardContainer>
       <StatCard>
         <IconWrapper style={{backgroundColor: "#f36c6c"}}>
-          <FaDollarSign />
+          <GoProjectSymlink />
         </IconWrapper>
         <StatContent>
           <StatValue>0</StatValue>
@@ -33,7 +35,7 @@ const UserDashboard = () => {
 
       <StatCard>
         <IconWrapper style={{backgroundColor: "#1ba9cc"}}>
-          <FaMoneyBillAlt />
+          <GrDocumentPerformance />
         </IconWrapper>
         <StatContent>
           <StatValue>Avg </StatValue>
