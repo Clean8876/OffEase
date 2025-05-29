@@ -15,8 +15,8 @@ import { getUserById, logout } from "../../../../api/AuthApi"; // Adjust path if
 const SidebarItem = [
   { id: 1, name: "Dashboard", path: "/user" },
   { id: 2, name: "Apply Leave", path: "/user/applyleave" },
-  { id: 4, name: "Calender", path: "/user/calander" },
-  { id: 5, name: "Profile", path: "/user/profile" },
+  { id: 3, name: "Calender", path: "/user/calander" },
+  { id: 4, name: "Profile", path: "/user/profile" },
 ];
 
 const UserHeader = () => {
@@ -74,7 +74,7 @@ const handleLogout = async () => {
                 }}
                 end
               >
-                <span className="menu-link-icon">{item.icon}</span>
+                {/* <span className="menu-link-icon">{item.icon}</span> */}
                 <span className="menu-link-text">{item.name}</span>
               </NavLink>
             </li>

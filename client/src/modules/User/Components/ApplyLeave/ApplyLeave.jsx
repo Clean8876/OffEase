@@ -92,15 +92,19 @@ const ApplyLeave = () => {
     setSelectedStartDate(null);
     setSelectedEndDate(null);
     console.log("Leave Request submitted:", response);
-  } catch (err) {
-    const message = err.response?.data?.message || err.message;
+  } 
+catch (err) {
+  const message = err.response?.data?.message || err.message;
 
-    // Check for balance-related message
-    if (message.toLowerCase().includes("insufficient")) {
-      toast.error("Insufficient leave balance"); 
-    } else {
-      toast.error("Failed to submit leave request.");
-    }
+ if (message.toLowerCase().includes("must apply")) {
+  toast.error("You can apply for casual leave only if it is at least 7 days in advance.");
+} else if (message.toLowerCase().includes("insufficient")) {
+  toast.error(message); 
+} else {
+  toast.error("Failed to submit leave request.");
+}
+
+
   }
 };
 
