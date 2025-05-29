@@ -204,7 +204,7 @@ const Register = ({ open, onClose }) => {
 
       {/* Toast container to display toast notifications */}
       <ToastContainer
-        position="top-right"
+        position="top-center"
         autoClose={4000}
         hideProgressBar={false}
         newestOnTop={false}

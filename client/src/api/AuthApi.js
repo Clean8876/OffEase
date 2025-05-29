@@ -102,3 +102,18 @@ export const logout = async () => {
   }
 };
 
+export const deleteEmployeeById = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axiosConfig.delete(`/api/user/delete/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+

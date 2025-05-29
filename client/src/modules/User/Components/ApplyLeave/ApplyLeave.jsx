@@ -113,7 +113,7 @@ catch (err) {
   return (
     <Container>
       {/* <Heading>Apply Leave</Heading> */}
-      <ToastContainer position="top-center"/>
+      <ToastContainer position="top-center" autoClose={3000} />
 
       <LeaveSection>
         <FormWrapper>
