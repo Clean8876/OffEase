@@ -255,6 +255,11 @@ export const SecondHero = styled.div`
   flex-wrap: wrap;
   gap: 16px;
   width: 100%;
+  @media (max-width: 576px) {
+    flex-direction: column-reverse;
+    
+
+  }
 `;
 
 export const DepartmentFilter = styled.div`
