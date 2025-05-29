@@ -267,6 +267,8 @@ export const DepartmentFilter = styled.div`
   margin: 0 20px;
   @media (max-width: 576px) {
     align-items: flex-start;
+    margin: 0;
+    margin-bottom: 20px;
   }
   
 `;
