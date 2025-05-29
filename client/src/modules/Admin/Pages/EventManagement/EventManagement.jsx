@@ -66,7 +66,7 @@ export default function EventManagement() {
       };
 
       await axios.post(
-        "https://offease-client.vercel.app/api/event/create-event",
+        "off-ease.vercel.app/api/event/create-event",
         payload,
         {  headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
