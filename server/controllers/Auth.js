@@ -1,5 +1,5 @@
 import EmployeeModel from "../models/UserModel.js";
-import { generateToken,cookieToken } from "../uitlis/generateToken.js";
+import {generateToken,cookieToken} from "../uitlis/generatetoken.js";
 import bcrypt from 'bcrypt'
 
 import LeaveBalance from '../models/leaveBalance.js';
