@@ -14,8 +14,9 @@ const EventCalendar = () => {
   // Memoized fetch events function
   const fetchEvents = useCallback(async () => {
     try {
+      // 'https://off-ease.vercel.app/api/event/get-event'
       setLoading(true);
-      const { data } = await axios.get('https://off-ease.vercel.app/api/event/get-event', {
+      const { data } = await axios.get('http://localhost:5000/api/event/get-event', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
