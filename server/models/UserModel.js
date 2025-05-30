@@ -8,9 +8,11 @@ const employeeSchema = new mongoose.Schema({
     employmentId: { type: String, unique: true, required: true ,default: uuidv4},
     Firstname: { type: String, required: true },
     Lastname: { type: String, required: true },
+    dob: { type: Date, required: true },
+    phoneno: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    dob: { type: Date, required: true },
+    
 
     department: {
         type: String,
@@ -48,4 +50,4 @@ employeeSchema.pre ('save',async function (next){
 })
 
  const EmployeeModel =  mongoose.model("Employee",employeeSchema)
- export default EmployeeModel;
+ export default EmployeeModel; 
