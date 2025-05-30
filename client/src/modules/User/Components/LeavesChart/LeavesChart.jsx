@@ -1,37 +1,126 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 import { getBalanceById } from "../../../../api/BalanceApi";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+// Custom hook
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return width;
+};
 
-// Styled Components
-const ChartWrapper = styled.div`
-  width: 350px;
+const OrderStatusContainer = styled.div`
+  padding: 10px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  width: 90%;
+  margin: 40px 20px 10px 20px;
   height: 400px;
-  margin: 2rem;
-  padding: 2rem;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 1360px) {
+    margin: 20px 10px 10px 10px;
+    height: 250px;
+  }
+
+  @media (max-width: 480px) {
+    margin: 0;
+    height: 300px;
+    width: 100%;
+    box-shadow: none;
+  }
+
+  .recharts-default-legend {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+
+    @media (max-width: 540px) {
+      gap: 0 40px  !important;
+      flex-wrap: wrap !important;
+      // justify-content: space-between !important;
+    }
+  }
+
+  .recharts-legend-item-text {
+    font-weight: 500;
+    font-size: 20px;
+    color: #444 !important;
+
+    @media (max-width: 1360px) {
+      font-size: 12px;
+    }
+  }
+`;
+
+const Title = styled.h2`
+  font-size: 20px;
+  margin-top: 5px;
   text-align: center;
-`;
-
-const ChartTitle = styled.h3`
   color: #333;
-  margin-bottom: 1.5rem;
+
+  @media (max-width: 1360px) {
+    font-size: 14px;
+    margin: 0px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    margin: 10px;
+  }
 `;
 
-const LeaveDoughnutChart = () => {
-  const [balance, setBalance] = useState(null);
+const ChartWrapper = styled.div`
+  width: 100%;
+  height: 300px;
+
+  @media (max-width: 1360px) {
+    height: 200px;
+  }
+
+  @media (max-width: 480px) {
+    height: 190px;
+  }
+`;
+
+const LeavesChart = () => {
+  const width = useWindowWidth();
+  const [data, setData] = useState([]);
+
+  const CASUAL_TOTAL = 4;
+  const SICK_TOTAL = 2;
 
   useEffect(() => {
     const fetchBalance = async () => {
       try {
         const response = await getBalanceById();
-        const data = response?.data || response;
-        setBalance(data);
+        const balance = response?.data || response;
+
+        const casualUsed = balance.leaveDetails.casual?.remainingDays || 0;
+        const sickUsed = balance.leaveDetails.sick?.remainingDays || 0;
+
+        const casualUnused = CASUAL_TOTAL - casualUsed;
+        const sickUnused = SICK_TOTAL - sickUsed;
+
+        const chartData = [
+          { name: "Casual - Used", value: casualUsed },
+          { name: "Casual - Unused", value: casualUnused },
+          { name: "Sick - Used", value: sickUsed },
+          { name: "Sick - Unused", value: sickUnused }
+        ];
+
+        setData(chartData);
       } catch (error) {
         console.error("Error fetching balance:", error);
       }
@@ -40,58 +129,46 @@ const LeaveDoughnutChart = () => {
     fetchBalance();
   }, []);
 
-  // Default leave quotas
-  const CASUAL_TOTAL = 4;
-  const SICK_TOTAL = 2;
+  const COLORS = ["#c8e6c9", "#4caf50", "#bbdefb", "#2196f3"];
 
-  if (!balance || !balance.leaveDetails) {
-    return (
-      <ChartWrapper>
-        <ChartTitle>Quarterly Leave Distribution</ChartTitle>
-        <p>Loading leave data...</p>
-      </ChartWrapper>
-    );
-  }
-
-  const casualUsed = balance.leaveDetails.casual?.remainingDays || 0;
-  const sickUsed = balance.leaveDetails.sick?.remainingDays || 0;
-
-  const casualUnused = CASUAL_TOTAL - casualUsed;
-  const sickUnused = SICK_TOTAL - sickUsed;
-
-  const data = {
-    labels: ["Casual - Used", "Casual - Unused", "Sick - Used", "Sick - Unused"],
-    datasets: [
-      {
-        label: "Leave Usage",
-        data: [casualUsed, casualUnused, sickUsed, sickUnused],
-        backgroundColor: ["#c8e6c9", "#4caf50", "#bbdefb", "#2196f3"],
-        borderWidth: 5,
-      },
-    ],
+  const getRadius = () => {
+    if (width <= 480) {
+      return { innerRadius: "50%", outerRadius: "75%", cy: "40%" };
+    } else if (width <= 1360) {
+      return { innerRadius: "40%", outerRadius: "65%", cy: "45%" };
+    } else {
+      return { innerRadius: "50%", outerRadius: "75%", cy: "50%" };
+    }
   };
 
-  const options = {
-    plugins: {
-      legend: {
-        position: "bottom",
-        labels: {
-          color: "#555",
-          font: {
-            size: 14,
-          },
-        },
-      },
-    },
-  };
+  const { innerRadius, outerRadius, cy } = getRadius();
 
   return (
-    <ChartWrapper>
-      <ChartTitle>Quarterly Leave Distribution</ChartTitle>
-      <Doughnut data={data} options={options} />
-    </ChartWrapper>
+    <OrderStatusContainer>
+      <Title>Leave Usage</Title>
+      <ChartWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy={cy}
+              innerRadius={innerRadius}
+              outerRadius={outerRadius}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={{ width: "100%", textAlign: "center" }} />
+            <Legend verticalAlign="bottom" height={10} />
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+    </OrderStatusContainer>
   );
 };
 
-
-export default LeaveDoughnutChart;
+export default LeavesChart;
