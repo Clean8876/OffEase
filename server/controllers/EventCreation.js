@@ -158,3 +158,127 @@ export const getEvent = async (req, res) =>{
 
     }
 }
+
+// DELETE /api/events/:id
+export const deleteEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.user;
+
+    if (role !== 'admin') {
+      return res.status(403).json({ message: 'Only admins can delete events' });
+    }
+
+    const deleted = await EventData.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    console.error('Delete error:', err.message);
+    res.status(500).json({ message: 'Server error deleting event' });
+  }
+};
+
+// PUT /api/events/:id
+export const updateEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.user;
+    const { title, description, date, type, targetTeams } = req.body;
+
+    if (role !== 'admin') {
+      return res.status(403).json({ message: 'Only admins can update events' });
+    }
+
+    const updateData = {};
+    if (title !== undefined) updateData.title = title.trim();
+    if (description !== undefined) updateData.description = description.trim();
+    if (date !== undefined) {
+      const newDate = new Date(date);
+      if (isNaN(newDate.getTime())) {
+        return res.status(400).json({ message: 'Invalid date format' });
+      }
+      if (newDate.getDay() === 0) {
+        return res.status(400).json({ message: 'Events cannot be on Sunday' });
+      }
+      updateData.date = newDate;
+    }
+    if (type !== undefined) {
+      if (!['company_event', 'team_event'].includes(type)) {
+        return res.status(400).json({ message: 'Invalid event type' });
+      }
+      updateData.type = type;
+    }
+    if (type === 'team_event' && targetTeams !== undefined) {
+      const validTeams = ['developer', 'marketing', 'hr', 'finance', 'sales'];
+      const invalid = targetTeams.filter(t => !validTeams.includes(t));
+      if (invalid.length > 0) {
+        return res.status(400).json({ message: `Invalid teams: ${invalid.join(', ')}` });
+      }
+      updateData.targetTeams = targetTeams;
+    }
+
+    const updatedEvent = await EventData.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!updatedEvent) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Event updated successfully',
+      data: updatedEvent
+    });
+  } catch (err) {
+    console.error('Update error:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET /api/events/today
+export const getTodayEventas = async (req, res) => {
+  try {
+    const { department, role } = req.user;
+
+    if (!department) {
+      return res.status(400).json({ message: 'User department not set' });
+    }
+
+    // Calculate today's date range (00:00:00 to 23:59:59)
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    // Build base query
+    const baseQuery = {
+      date: { $gte: start, $lte: end },
+      ...(role !== 'admin' && {
+        $or: [
+          { type: 'company_event' },
+          { type: 'team_event', targetTeams: { $in: [department] } }
+        ]
+      })
+    };
+
+    const events = await EventData.find(baseQuery)
+      .select('title description date type targetTeams createdAt')
+      .sort({ date: 1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: events.length,
+      data: events
+    });
+  } catch (err) {
+    console.error('Fetch error:', err.message);
+    res.status(500).json({ message: 'Error fetching today\'s events' });
+  }
+};

@@ -348,3 +348,92 @@ export const getAllLeaveBalances = async (req, res) => {
   }
 };
 
+export const patchLeaveRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const request = await LeaveRequest.findById(id).populate("leaveType");
+    if (!request) return res.status(404).json({ message: "Leave request not found" });
+
+    // Authorization check
+    if (request.employee.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized to update this request" });
+    }
+
+    if (request.status !== "pending") {
+      return res.status(400).json({ message: "Only pending requests can be updated" });
+    }
+
+    // Existing dates
+    const oldStart = new Date(request.startDate);
+    const oldEnd = new Date(request.endDate);
+    const newStart = updates.startDate ? new Date(updates.startDate) : oldStart;
+    const newEnd = updates.endDate ? new Date(updates.endDate) : oldEnd;
+
+    if (newEnd < newStart) {
+      return res.status(400).json({ message: "End date cannot be before start date" });
+    }
+
+    // Enforce advance notice
+    const now = new Date();
+    const notice = Math.ceil((newStart - now) / (1000 * 60 * 60 * 24));
+    if (notice < request.leaveType.advanceNoticeDays) {
+      return res.status(400).json({
+        message: `Must apply ${request.leaveType.advanceNoticeDays} days in advance for ${request.leaveType.name}`
+      });
+    }
+
+    // Calculate valid leave days
+    const getValidLeaveDays = (startDate, endDate) => {
+      let count = 0;
+      let current = new Date(startDate);
+      while (current <= new Date(endDate)) {
+        const day = current.getDay();
+        if (day !== 0) {
+          if (day === 6) {
+            const temp = new Date(current);
+            const month = temp.getMonth();
+            const year = temp.getFullYear();
+            let saturdayCount = 0;
+            for (let d = 1; d <= temp.getDate(); d++) {
+              const tempDate = new Date(year, month, d);
+              if (tempDate.getDay() === 6) saturdayCount++;
+            }
+            if (saturdayCount !== 2) count++;
+          } else {
+            count++;
+          }
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      return count;
+    };
+
+    const newDays = getValidLeaveDays(newStart, newEnd);
+
+    // Check updated leave balance
+    const balance = await LeaveBalance.findOne({
+      employee: request.employee,
+      leaveType: request.leaveType._id,
+    });
+
+    if (!balance || balance.remainingDays < newDays) {
+      return res.status(400).json({
+        message: `Insufficient ${request.leaveType.name} leave balance. Available: ${balance ? balance.remainingDays : 0}, Needed: ${newDays}`
+      });
+    }
+
+    // Apply updates
+    request.startDate = newStart;
+    request.endDate = newEnd;
+    if (updates.reason) request.reason = updates.reason;
+    if (updates.description) request.description = updates.description;
+
+    await request.save();
+
+    res.status(200).json({ message: "Leave request updated", request });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating leave request", error: err.message });
+  }
+};

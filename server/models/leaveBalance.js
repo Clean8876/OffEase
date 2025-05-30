@@ -4,8 +4,7 @@ const leaveBalanceSchema = new mongoose.Schema({
   employee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Employee",
-    required: true
-  },
+    required: true},
   leaveType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "LeaveType",

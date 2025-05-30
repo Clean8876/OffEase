@@ -7,7 +7,7 @@ import {
   getLeaveRequestsWithBalances,
   updateLeaveRequestStatus,
   deleteLeaveRequest,
-  getAllLeaveBalances
+  getAllLeaveBalances,patchLeaveRequest
 } from "../controllers/leaveController.js";
 import { authenticateToken, forAdmin, forEmployee } from "../middleware/authMiddleware.js";
 
@@ -36,7 +36,8 @@ router.patch('/requests/status', authenticateToken, forAdmin, updateLeaveRequest
 //delete leave request
 router.delete("/:id", authenticateToken, forEmployee, deleteLeaveRequest);
 
-
+//update leave request
+router.patch("/update/:id", authenticateToken, patchLeaveRequest);
 
 
 
