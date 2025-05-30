@@ -14,11 +14,14 @@ export const register = async (req, res) => {
   try {
     const {
       Firstname, Lastname, email, password, confirmPassword,
-      dob, phoneNo, department, role, profilePictureUrl
+      dob, department, role, profilePictureUrl
     } = req.body;
 
-    if (!Firstname || !Lastname || !email || !password || !confirmPassword || !dob || !phoneNo || !department || !role) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (
+      !Firstname || !Lastname || !email || !password ||
+      !confirmPassword || !dob || !department || !role
+    ) {
+      return res.status(403).json({ message: "All Fields are required" });
     }
 
     if (password !== confirmPassword) {
@@ -27,33 +30,21 @@ export const register = async (req, res) => {
 
     const userExist = await EmployeeModel.findOne({ email });
     if (userExist) {
-      return res.status(409).json({ message: 'User already exists with this email' });
-    }
-
-    const phoneExists = await EmployeeModel.findOne({ phoneNo });
-    if (phoneExists) {
-      return res.status(409).json({ message: 'User already exists with this phone number' });
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     const newUser = new EmployeeModel({
-      firstName: Firstname,
-      lastName: Lastname,
-      email,
-      password,
-      dob,
-      phoneNo,
-      role,
-      department,
-      profilePictureUrl
+      Firstname, Lastname, email, password, role,
+      dob, department, profilePictureUrl
     });
 
     await newUser.save();
 
-    // Leave balance creation
+    // Leave balance
     if (role === 'employee') {
       const [casualType, sickType] = await Promise.all([
         LeaveType.findOne({ name: 'casual' }),
-        LeaveType.findOne({ name: 'sick' }),
+        LeaveType.findOne({ name: 'sick' })
       ]);
 
       if (!casualType || !sickType) {
@@ -62,69 +53,70 @@ export const register = async (req, res) => {
 
       await LeaveBalance.insertMany([
         { employee: newUser._id, leaveType: casualType._id, totalDays: 4, remainingDays: 4 },
-        { employee: newUser._id, leaveType: sickType._id, totalDays: 2, remainingDays: 2 },
+        { employee: newUser._id, leaveType: sickType._id, totalDays: 2, remainingDays: 2 }
       ]);
     }
 
+    // Send registration confirmation email
     const emailHtml = `
       <h3>Welcome to the Company, ${Firstname} ${Lastname}!</h3>
       <p>You have been successfully registered.</p>
       <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Password:</strong> ${password}</p>
+      <p>Please keep this information safe.</p>
       <br/>
       <p>Regards,<br/>Admin Team</p>
     `;
-
     await sendEmail(email, 'Registration Successful', emailHtml);
 
     return res.status(201).json({
       message: 'Successfully registered. Confirmation email sent.',
-      userId: newUser._id,
+      newUser
     });
 
   } catch (err) {
     console.error('Error in register:', err.message);
-    return res.status(500).json({ message: 'Server error during registration' });
-  }
-};
-
-
- export const AuthUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    const user = await EmployeeModel.findOne({ email }).select('+password');
-    console.log('[Login] User fetched:', user);
-
-    if (!user) {
-      return res.status(404).json({ message: 'Account not found' });
-    }
-
-    console.log('[Login] Password (input):', password);
-    console.log('[Login] Password hash (DB):', user.password);
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const token = generateToken(user.email, user._id, user.role, user.department);
-    cookieToken(res, token);
-
-    return res.status(200).json({
-      message: 'Authentication successful',
-      token,
-      user,
-    });
-  } catch (err) {
-    console.error('[Login] Error during authentication:', err.message);
     return res.status(500).json({ message: err.message });
   }
 };
 
+
+
+ export const AuthUser = async(req,res)=>{
+    try{
+        const { email, password } = req.body;
+
+        // Check if email and password are provided
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+        const user = await EmployeeModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'Account not found' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+    const token = generateToken(user.email, user._id,user.role,user.department);
+
+
+  // Set token in cookie
+  cookieToken(res, token);
+
+  // Respond with user details and token
+  return res.status(200).json({
+      message: 'Authentication successful',
+      token,
+      user:user
+      ,
+  });
+} catch (err) {
+  console.error('Error during authentication', err.message);
+  return res.status(500).json({ message: err.message });
+}
+}
 
 export const getAllUsers = async (req, res) => {
   try {
