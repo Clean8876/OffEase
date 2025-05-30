@@ -88,41 +88,43 @@ export const register = async (req, res) => {
 };
 
 
- export const AuthUser = async(req,res)=>{
-    try{
-        const { email, password } = req.body;
+ export const AuthUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
-        // Check if email and password are provided
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
-        }
-        const user = await EmployeeModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'Account not found' });
-        }
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+    const user = await EmployeeModel.findOne({ email }).select('+password');
+    console.log('[Login] User fetched:', user);
 
-    const token = generateToken(user.email, user._id,user.role,user.department);
+    if (!user) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
 
+    console.log('[Login] Password (input):', password);
+    console.log('[Login] Password hash (DB):', user.password);
 
-  // Set token in cookie
-  cookieToken(res, token);
+    const isMatch = await bcrypt.compare(password, user.password);
 
-  // Respond with user details and token
-  return res.status(200).json({
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user.email, user._id, user.role, user.department);
+    cookieToken(res, token);
+
+    return res.status(200).json({
       message: 'Authentication successful',
       token,
-      user:user
-      ,
-  });
-} catch (err) {
-  console.error('Error during authentication', err.message);
-  return res.status(500).json({ message: err.message });
-}
-}
+      user,
+    });
+  } catch (err) {
+    console.error('[Login] Error during authentication:', err.message);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 
 export const getAllUsers = async (req, res) => {
   try {
