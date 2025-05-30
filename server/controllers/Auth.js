@@ -14,14 +14,11 @@ export const register = async (req, res) => {
   try {
     const {
       Firstname, Lastname, email, password, confirmPassword,
-      dob, department, role, profilePictureUrl
+      dob, phoneNo, department, role, profilePictureUrl
     } = req.body;
 
-    if (
-      !Firstname || !Lastname || !email || !password ||
-      !confirmPassword || !dob || !department || !role
-    ) {
-      return res.status(403).json({ message: "All Fields are required" });
+    if (!Firstname || !Lastname || !email || !password || !confirmPassword || !dob || !phoneNo || !department || !role) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     if (password !== confirmPassword) {
@@ -30,21 +27,33 @@ export const register = async (req, res) => {
 
     const userExist = await EmployeeModel.findOne({ email });
     if (userExist) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(409).json({ message: 'User already exists with this email' });
+    }
+
+    const phoneExists = await EmployeeModel.findOne({ phoneNo });
+    if (phoneExists) {
+      return res.status(409).json({ message: 'User already exists with this phone number' });
     }
 
     const newUser = new EmployeeModel({
-      Firstname, Lastname, email, password, role,
-      dob, department, profilePictureUrl
+      firstName: Firstname,
+      lastName: Lastname,
+      email,
+      password,
+      dob,
+      phoneNo,
+      role,
+      department,
+      profilePictureUrl
     });
 
     await newUser.save();
 
-    // Leave balance
+    // Leave balance creation
     if (role === 'employee') {
       const [casualType, sickType] = await Promise.all([
         LeaveType.findOne({ name: 'casual' }),
-        LeaveType.findOne({ name: 'sick' })
+        LeaveType.findOne({ name: 'sick' }),
       ]);
 
       if (!casualType || !sickType) {
@@ -53,33 +62,30 @@ export const register = async (req, res) => {
 
       await LeaveBalance.insertMany([
         { employee: newUser._id, leaveType: casualType._id, totalDays: 4, remainingDays: 4 },
-        { employee: newUser._id, leaveType: sickType._id, totalDays: 2, remainingDays: 2 }
+        { employee: newUser._id, leaveType: sickType._id, totalDays: 2, remainingDays: 2 },
       ]);
     }
 
-    // Send registration confirmation email
     const emailHtml = `
       <h3>Welcome to the Company, ${Firstname} ${Lastname}!</h3>
       <p>You have been successfully registered.</p>
       <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Password:</strong> ${password}</p>
-      <p>Please keep this information safe.</p>
       <br/>
       <p>Regards,<br/>Admin Team</p>
     `;
+
     await sendEmail(email, 'Registration Successful', emailHtml);
 
     return res.status(201).json({
       message: 'Successfully registered. Confirmation email sent.',
-      newUser
+      userId: newUser._id,
     });
 
   } catch (err) {
     console.error('Error in register:', err.message);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ message: 'Server error during registration' });
   }
 };
-
 
 
  export const AuthUser = async(req,res)=>{
