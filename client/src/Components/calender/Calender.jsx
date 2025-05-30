@@ -15,7 +15,7 @@ const EventCalendar = () => {
   const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('http://localhost:5000/api/event/get-event', {
+      const { data } = await axios.get('https://off-ease.vercel.app/api/event/get-event', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -235,27 +235,27 @@ const renderCalendarDays = useMemo(() => {
           <h1 className="text-2xl font-semibold text-gray-800">Events Calendar</h1>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigateMonth(-1)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            disabled={loading}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <h2 className="text-xl font-medium text-gray-700 min-w-48 text-center">
-            {monthYear}
-          </h2>
-          
-          <button
-            onClick={() => navigateMonth(1)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            disabled={loading}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+     <div className="flex items-center justify-between w-full max-w-full overflow-hidden">
+        <button
+          onClick={() => navigateMonth(-1)}
+          className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          disabled={loading}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <h2 className="flex-1 text-center text-base sm:text-xl font-medium text-gray-700 truncate px-2">
+          {monthYear}
+        </h2>
+
+        <button
+          onClick={() => navigateMonth(1)}
+          className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          disabled={loading}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
       </div>
 
       {/* Calendar Grid */}

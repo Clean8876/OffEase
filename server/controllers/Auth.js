@@ -1,5 +1,5 @@
 import EmployeeModel from "../models/UserModel.js";
-import { generateToken,cookieToken } from "../uitlis/generateToken.js";
+import {generateToken,cookieToken} from "../uitlis/generatetoken.js";
 import bcrypt from 'bcrypt'
 
 import LeaveBalance from '../models/leaveBalance.js';
@@ -92,7 +92,7 @@ export const register = async (req, res) => {
         }
         const user = await EmployeeModel.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(404).json({ message: 'Account not found' });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -174,12 +174,13 @@ export const forgotPassword = async (req, res) => {
 
     // Set token and expiry (1 hour from now)
     user.resetPasswordToken = token;
+    console.log(user.resetPasswordToken);
     user.resetPasswordExpires = Date.now() + 3600000;
 
     await user.save();
 
     // Create reset URL (frontend should handle this route)
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
     const message = `
       <h3>Password Reset Request</h3>
@@ -200,6 +201,44 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: 'Something went wrong' });
   }
 };
+
+
+
+export const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ message: 'Token and new password are required' });
+  }
+
+  try {
+    const user = await EmployeeModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }, // Token must not be expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user's password and remove reset fields
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Password has been successfully reset' });
+
+  } catch (err) {
+    console.error('Reset password error:', err.message);
+    res.status(500).json({ message: 'Server error during password reset' });
+  }
+};
+
 
 
 export const logout = (req, res) => {

@@ -8,6 +8,10 @@ export const Container = styled.div`
   font-family: Arial, sans-serif;
   width: 90%;
   margin: 0 auto;
+
+  @media (max-width: 576px) {
+   width: 100%;
+  }
 `;
 
 export const LeaveSection = styled.div`
@@ -71,6 +75,41 @@ export const FormSection = styled.form`
 export const Label = styled.label`
   font-weight: 600;
   margin-bottom: 0.3rem;
+
+
+  .react-calendar {
+    width: 350px;
+    height: 100%;
+    border: none;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.125em;
+
+    @media (max-width: 935px) {
+      width: 250px;
+
+    }
+
+    @media (max-width: 768px) {
+      width: 80%;
+      margin: 0 auto;
+      
+    }
+
+    @media (max-width: 576px) {
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+    @media (max-width: 576px) {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
 `;
 
 export const Input = styled.input`
@@ -114,8 +153,18 @@ flex-direction: column;
 export const Row = styled.div`
   display: flex;
   justify-content: space-between;
-  // flex-wrap: wrap;
+  flex-wrap: wrap;
   gap: 1.2rem;
+
+  @media (max-width: 768px) {
+   justify-content: center;
+  }
+
+
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
 `;
 
 export const ReasonAnddescription = styled.div`

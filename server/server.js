@@ -21,13 +21,14 @@ const port = process.env.PORT
 
 app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://off-ease-q2sj.vercel.app',
+    // origin: 'http://localhost:3000',
     credentials: true, 
   }));
 
 
     app.get('/', (req, res) => {
-    res.send('Server is running..............................');
+    res.status(200).json('Server is running..............................');
   
 });
 app.use('/api/user',EmployeeRouter)

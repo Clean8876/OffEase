@@ -255,6 +255,9 @@ display: flex;
 flex-direction: row;
 // padding: 20px;
 width: 100%;
+@media (max-width: 576px) {
+  flex-direction: column-reverse;
+}
 `;
 
 export const DepartmentFilter = styled.div`
@@ -262,5 +265,10 @@ export const DepartmentFilter = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 0 20px;
+  @media (max-width: 576px) {
+    align-items: flex-start;
+    margin: 0;
+    margin-bottom: 20px;
+  }
   
 `;

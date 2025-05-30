@@ -40,6 +40,15 @@ height: 50px;
     gap: 30px;
     margin-left: 50px;
     font-family: "Montserrat", sans-serif;
+
+    @media (max-width: 1360px) {
+      gap: 20px;
+      margin-left: 20px;
+    }
+
+    @media (max-width: 576px) {
+      display: none;
+    }
   }
 
   .menu-item {
@@ -182,3 +191,53 @@ export const DropdownMenu = styled.div`
             top: 30px;
 }
 `;
+
+export const HamburgerIcon = styled.div`
+  display: none;
+  cursor: pointer;
+  padding: 0 20px;
+  
+  @media (max-width: 576px) {
+    display: block;
+  }
+
+  div {
+    width: 25px;
+    height: 3px;
+    background-color: #1d1d1d;
+    margin: 5px 0;
+    transition: 0.4s;
+  }
+`;
+
+export const MobileMenu = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: none;
+  flex-direction: column;
+  background-color: rgb(247, 215, 236);
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  z-index: 99;
+
+@media (max-width: 576px) {
+  &.open {
+  
+    display: flex;
+
+  }
+  }
+
+  li {
+    text-align: center;
+    padding: 12px;
+  }
+
+  .menu-link {
+    justify-content: center;
+  }
+`;
+

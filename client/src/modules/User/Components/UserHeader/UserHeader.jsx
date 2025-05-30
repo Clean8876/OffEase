@@ -7,10 +7,12 @@ import {
   HeaderTitle,
   ProfileContainer,
   ProfileIcon,
-  DropdownMenu
+  DropdownMenu,
+  HamburgerIcon,
+  MobileMenu
 } from "./UserHeader.styles";
 
-import { getUserById, logout } from "../../../../api/AuthApi"; // Adjust path if needed
+import { getUserById, logout } from "../../../../api/AuthApi";
 
 const SidebarItem = [
   { id: 1, name: "Dashboard", path: "/user" },
@@ -21,29 +23,26 @@ const SidebarItem = [
 
 const UserHeader = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [Title, setTitle] = useState(""); // Store user full name
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [Title, setTitle] = useState("");
   const dropdownRef = useRef(null);
-
   const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev);
+  const toggleDropdown = () => setDropdownOpen(prev => !prev);
+  const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
+
+  const handleLogout = async () => {
+    try {
+      const response = await logout();
+      console.log(response.message);
+      localStorage.clear();
+      alert("Logged out successfully");
+      navigate("/");
+    } catch (err) {
+      console.error("Logout failed:", err.message || err);
+    }
   };
 
-const handleLogout = async () => {
-  try {
-    const response = await logout(); // response is { message: 'Logout successful' }
-    console.log(response.message); // ✅ correct usage
-
-    localStorage.clear(); 
-    alert("Logged out successfully");
-    navigate("/"); 
-  } catch (err) {
-    console.error("Logout failed:", err.message || err);
-  }
-};
-
-  // Fetch user name on component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -61,6 +60,14 @@ const handleLogout = async () => {
   return (
     <HeaderContainer>
       <HeaderWrapper>
+        {/* Hamburger Icon for small screens */}
+        <HamburgerIcon onClick={toggleMobileMenu}>
+          <div></div>
+          <div></div>
+          <div></div>
+        </HamburgerIcon>
+
+        {/* Menu List for large screens */}
         <ul className="menu-list">
           {SidebarItem.map((item) => (
             <li className="menu-item" key={item.id}>
@@ -69,24 +76,23 @@ const handleLogout = async () => {
                 className={({ isActive }) =>
                   isActive ? "menu-link active" : "menu-link"
                 }
-                onClick={() => {
-                  localStorage.setItem("title", JSON.stringify(item.name));
-                }}
+                onClick={() =>
+                  localStorage.setItem("title", JSON.stringify(item.name))
+                }
                 end
               >
-                {/* <span className="menu-link-icon">{item.icon}</span> */}
                 <span className="menu-link-text">{item.name}</span>
               </NavLink>
             </li>
           ))}
         </ul>
 
+        {/* Profile Section */}
         <ProfileContainer ref={dropdownRef}>
           <span>Welcome, {Title || "User"}!</span>
           <ProfileIcon onClick={toggleDropdown}>
             <FaUserCircle size={24} />
           </ProfileIcon>
-
           {dropdownOpen && (
             <DropdownMenu>
               <button onClick={handleLogout}>Logout</button>
@@ -94,6 +100,27 @@ const handleLogout = async () => {
           )}
         </ProfileContainer>
       </HeaderWrapper>
+
+      {/* Mobile Menu */}
+      <MobileMenu className={mobileMenuOpen ? "open" : ""}>
+        {SidebarItem.map((item) => (
+          <li key={item.id}>
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                isActive ? "menu-link active" : "menu-link"
+              }
+              onClick={() => {
+                setMobileMenuOpen(false);
+                localStorage.setItem("title", JSON.stringify(item.name));
+              }}
+              end
+            >
+              <span className="menu-link-text">{item.name}</span>
+            </NavLink>
+          </li>
+        ))}
+      </MobileMenu>
     </HeaderContainer>
   );
 };

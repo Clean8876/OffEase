@@ -1,5 +1,10 @@
 import styled from "styled-components";
 
+const breakpoints = {
+  sm: "480px",
+  md: "768px",
+};
+
 export const Container = styled.div`
   position: relative;
   display: flex;
@@ -10,41 +15,43 @@ export const Container = styled.div`
   font-family: "Arial", sans-serif;
   background-color: #f9f9f9;
 
-  @media (max-width: 768px) {
-    margin-left: 10px;
-    margin-top: 0;
-    padding: 8px;
+  @media (max-width: ${breakpoints.md}) {
+    margin: 10px;
+    padding: 12px;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: ${breakpoints.sm}) {
     padding: 8px;
   }
 `;
 
 export const HeaderRow = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 16px;
+  @media (max-width: ${breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+
 `;
 
 export const Title = styled.h3`
   margin: 0;
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
   font-weight: 700;
   color: #000;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-left: 0;
-  }
 `;
 
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
+  font-size: 0.75rem;
   color: #666;
-  font-size: 12px;
 `;
 
 export const SortLabel = styled.span`
@@ -56,7 +63,7 @@ export const SortSelect = styled.select`
   background-color: #f0f0f0;
   padding: 4px;
   font-family: "Arial", sans-serif;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #555;
   cursor: pointer;
 
@@ -68,7 +75,6 @@ export const SortSelect = styled.select`
 
 export const TableWrapper = styled.div`
   width: 100%;
-  background-color: #f9f9f9;
   overflow-x: auto;
 `;
 
@@ -79,15 +85,13 @@ export const StyledTable = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background-color:rgb(238, 218, 237);
+  background-color: rgb(238, 218, 237);
 `;
 
 export const TableHeader = styled.th`
   text-align: left;
   padding: 16px;
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  font-weight: normal;
+  font-size: 1rem;
   color: #555;
   white-space: nowrap;
 
@@ -112,7 +116,7 @@ export const TableRow = styled.tr`
 
 export const TableCell = styled.td`
   padding: 15px;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #000;
   white-space: nowrap;
   border-bottom: 1px solid #ccc;
@@ -147,7 +151,7 @@ export const ActionsContainer = styled.div`
 `;
 
 export const PageInfo = styled.div`
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: #666;
 `;
 
@@ -155,16 +159,12 @@ export const PageButton = styled.button`
   border: 1px solid #ccc;
   background-color: #fff;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   padding: 4px 8px;
   cursor: pointer;
+  transition: 0.2s;
 
-  &.active {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-  }
-
+  &.active,
   &:hover {
     background-color: #007bff;
     color: #fff;
@@ -176,20 +176,16 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 0;
   margin-top: 16px;
 
-  @media (max-width: 768px) {
-    margin: 10px 5px;
-  }
-
-  @media (max-width: 480px) {
-    margin: 10px 5px;
+  @media (max-width: ${breakpoints.md}) {
+    justify-content: center;
+    margin: 10px 0;
   }
 `;
 
 export const CreateButton = styled.button`
-  padding: 16px;
+  padding: 12px 20px;
   background: linear-gradient(to right, #0dcaf0, #007bff);
   color: #fff;
   border: none;
@@ -197,32 +193,31 @@ export const CreateButton = styled.button`
   font-family: "Arial", sans-serif;
   cursor: pointer;
   font-size: 1rem;
-  width: 15%;
+  min-width: 120px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.2s ease;
+  transition: 0.2s;
+  @media (max-width: ${breakpoints.sm}) {
+  width: 100%;
+}
 
-  @media (max-width: 768px) {
-    font-size: 12px;
-    width: 40%;
-    margin-right: 20px;
+
+  @media (max-width: ${breakpoints.md}) {
+    font-size: 0.75rem;
+    padding: 10px 16px;
+    min-width: 100px;
   }
 
-  @media (max-width: 480px) {
-    padding: 8px 16px;
-    font-size: 10px;
-    width: 50%;
+  @media (max-width: ${breakpoints.sm}) {
+    width: 100%;
   }
 `;
 
 export const SearchWrapper = styled.div`
   position: relative;
   margin-bottom: 16px;
-
-  @media (max-width: 768px) {
-    margin-bottom: 20px;
-  }
+  width: 100%;
 `;
 
 export const SearchIcon = styled.div`
@@ -238,31 +233,49 @@ export const SearchIcon = styled.div`
 
 export const SearchInput = styled.input`
   width: 100%;
-  padding: 10px 5px 10px 40px;
+  padding: 10px 10px 10px 40px;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  color: #999;
+  color: #333;
   background: #f0f0f0;
 
-  @media (max-width: 768px) {
-    font-size: 14px;
+  &:focus {
+    outline: 2px solid #007bff;
   }
+    @media (max-width: ${breakpoints.sm}) {
+  font-size: 0.875rem;
+  padding: 8px 8px 8px 36px;
+}
+
 `;
 
 export const SecondHero = styled.div`
-display: flex;
-flex-direction: row;
-// padding: 20px;
-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+
+@media (max-width: 768px) {
+
+  @media (max-width: 576px) {
+    flex-direction: column-reverse;
+    
+
+  }
 `;
 
 export const DepartmentFilter = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 20px;
-  
+  margin: 0 10px;
+
+  @media (max-width: ${breakpoints.sm}) {
+    margin: 0;
+    width: 100%;
+    align-items: flex-start;
+  }
 `;
 
 export const ModalOverlay = styled.div`
@@ -284,6 +297,11 @@ export const ModalContent = styled.div`
   border-radius: 8px;
   width: 300px;
   text-align: center;
+  @media (max-width: ${breakpoints.sm}) {
+  width: 90%;
+  padding: 16px;
+}
+
 `;
 
 export const ModalTitle = styled.h3`
