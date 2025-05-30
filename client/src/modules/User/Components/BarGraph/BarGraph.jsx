@@ -37,9 +37,9 @@ const BarGraph = () => {
             <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
             <Tooltip />
             {/* Regular hours (blue) */}
-            <Bar dataKey="regularHours" stackId="a" fill="#4f46e5" radius={[0, 0, 0, 0]} barSize={30} />
+            <Bar dataKey="regularHours" stackId="a" fill="#2196f3" radius={[0, 0, 0, 0]} barSize={30} />
             {/* Overtime hours (pink) */}
-            <Bar dataKey="overtimeHours" stackId="a" fill="#f472b6" barSize={30} />
+            <Bar dataKey="overtimeHours" stackId="a" fill="#bbdefb" barSize={30} />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>

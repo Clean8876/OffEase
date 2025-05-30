@@ -7,6 +7,13 @@ export const Container = styled.div`
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 480px) {
+    width: 100%;
+    box-shadow: none;
+    padding: 16px;
+    margin: 0;
+  }
 `;
 
 export const AvatarSection = styled.div`

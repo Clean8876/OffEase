@@ -8,6 +8,12 @@ export const ChartContainer = styled.div`
   background-color: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  }
 `;
 
 export const ChartCard = styled.div`

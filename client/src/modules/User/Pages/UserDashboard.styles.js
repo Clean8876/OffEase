@@ -105,10 +105,16 @@ export const GraphContainer = styled.div`
   border-radius: 8px;
   margin-left: 50px;
 
+  @media (max-width: 768px) {
+  display: flex;
+  flex-direction: column;
+    margin-left: 0px;
+  }
+
   @media (max-width: 480px) {
     display: grid;
     grid-template-columns: 1fr;
-    margin-left: 10px;
+    margin-left: 0px;
   }
 `;
 
